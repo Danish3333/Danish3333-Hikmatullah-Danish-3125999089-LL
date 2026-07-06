@@ -1,0 +1,20 @@
+============================================================
+VALIDATION REPORT — Experiment 3: Reservoir Dispatch Optimization
+Date: 2026-07-07 02:34:16
+============================================================
+[PASS] V01: All releases >= Q_eco=10.0 — min=10.00
+[PASS] V02: All releases <= Q_max=100.0 — max=25.41
+[PASS] V03: Storage >= V_min=100000 — min=100500
+[PASS] V04: Storage <= V_max=1000000 — max=999500
+[PASS] V05: Mass balance holds at all time steps
+[PASS] V06: Total revenue > 0 — $54,910.69
+[PASS] V07: Ecological deficit == 0 — 0.0
+[PASS] V08: optimal_schedule.csv exists
+[PASS] V09: tradeoff_analysis.png exists
+[PASS] V10: 7 optimal releases — 7
+[PASS] V11: 8 storage values — 8
+[PASS] V12: Revenue sum matches — $54,910.69 vs $54,910.69
+[PASS] V13: No NaN or infinite values in releases
+------------------------------------------------------------
+Result: 13/13 PASSED
+Conclusion: All reservoir optimization constraints verified.

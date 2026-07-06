@@ -1,0 +1,41 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, graphicx, hyperref, listings, booktabs}
+\usepackage[margin=2.5cm]{geometry}
+\title{Experiment 4: Flood Inundation Analysis (DEM-based)}
+\author{Hikmatullah Danish \quad 3125999089}
+\date{July 2026}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+Flood inundation mapping identifies areas where water would cover land given a specific water surface elevation. This experiment implements a bathtub-model flood simulation on a synthetic 100$\times$100 Digital Elevation Model (DEM) with elevations ranging from 30 to 80 meters. The analysis generates publication-quality 3-panel visualizations, simulates 51 rising water levels to produce a flood curve, and validates 13 physical constraints.
+
+\section{Mathematical Formulation}
+A cell at location $(i,j)$ with elevation $E_{ij}$ is considered flooded when the water level $W$ exceeds the terrain:
+\begin{align}
+\text{flooded}_{ij} &= \begin{cases}
+\text{True} & \text{if } E_{ij} < W \\
+\text{False} & \text{otherwise}
+\end{cases} \\
+\text{depth}_{ij} &= \max(0,\; W - E_{ij}) \\
+\text{percentage} &= \frac{\sum \text{flooded}_{ij}}{N} \times 100
+\end{align}
+
+\section{Terrain Generation}
+The synthetic DEM is generated using sinusoidal functions for hills, a Gaussian exponential for a diagonal river valley, and Gaussian noise for micro-terrain. The elevation range is normalized to 30–80 m using min-max scaling. A fixed random seed (42) ensures reproducibility across runs.
+
+\section{Implementation}
+The core functions are \texttt{generate\_dem(size, seed)} (returns a 2D float32 array), \texttt{calculate\_flood(dem, water\_level)} (returns a dictionary with flooded mask, depth array, percentage, and max depth), and \texttt{visualize\_flood(dem, result, water\_level, filename)} (creates a 1$\times$3 subplot with original DEM, flood extent overlay, and depth heatmap). The \texttt{simulate\_rising\_water(dem, levels)} function iterates through 51 levels from 30 to 80 m, tracking percentage and max depth. Built-in validation checks five constraints: below-minimum gives 0\%, above-maximum gives 100\%, monotonic increase, correct max depth, and valid percentage range.
+
+\section{Testing \& Validation}
+The pytest suite contains 10 tests: DEM shape, elevation bounds, seed reproducibility, zero-flood at low water, 100\%-flood at high water, percentage bounds, monotonic flood extent, non-negative depths, monotonic simulation, and built-in validate() correctness. All 10 tests pass. The external validation script runs 13 checks: DEM dimensions, min/max bounds, reproducibility, 0\%/100\% extremes, monotonicity, depth non-negativity, percentage range, rising-water monotonicity, built-in validate pass, and output file existence. All 13 checks pass.
+
+\section{Results}
+At 40 m water level, 10.1\% of the terrain is flooded with a maximum depth of 10.0 m. At 50 m, the flooded area increases to 37.2\% with a maximum depth of 20.0 m. The flood curve exhibits the characteristic sigmoid shape of terrain flooding. All 51 simulation steps maintain strict monotonicity.
+
+\section{Conclusion}
+This experiment demonstrates that spatial flood analysis can be implemented efficiently with NumPy vectorization and matplotlib RGBA compositing. The bathtub model provides a rapid first-order approximation suitable for flood risk screening. The RGBA overlay technique for combining terrain colormaps with flood extent proved to be the most technically challenging component and required iterative prompt refinement.
+
+\end{document}

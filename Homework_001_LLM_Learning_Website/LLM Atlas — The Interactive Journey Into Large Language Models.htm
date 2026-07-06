@@ -1,0 +1,3010 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>LLM Atlas — The Interactive Journey Into Large Language Models</title>
+<style>
+  :root{
+    --bg:#06080f;--bg2:#0a0e1a;--surface:#111827;--surface2:#1a2236;--surface3:#293449;
+    --border:#293449;--border2:#3a4660;
+    --accent:#60a5fa;--accent2:#f97316;--accent3:#22c55e;--accent4:#a855f7;--accent5:#ec4899;--accent6:#06b6d4;
+    --text:#f1f5f9;--text2:#94a3b8;--text3:#64748b;
+    --warn:#eab308;--red:#ef4444;
+    --glow:0 0 24px rgba(96,165,250,0.15);
+    --shadow:0 8px 32px rgba(0,0,0,.4);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;line-height:1.7;font-size:15px;overflow-x:hidden;}
+  a{color:var(--accent);text-decoration:none;transition:color .2s;}
+  a:hover{color:var(--accent4);}
+  h1{font-size:2.6rem;font-weight:800;letter-spacing:-.02em;line-height:1.2;}
+  h2{font-size:1.6rem;font-weight:700;color:var(--accent);margin-bottom:.5rem;letter-spacing:-.01em;}
+  h3{font-size:1.1rem;font-weight:600;color:var(--accent4);margin-bottom:.4rem;}
+  h4{font-size:.95rem;font-weight:600;color:var(--text);margin-bottom:.3rem;}
+  p{color:var(--text2);margin-bottom:.6rem;}
+  strong{color:var(--text);}
+  code{background:var(--surface2);padding:2px 7px;border-radius:4px;font-family:'Fira Code','Cascadia Code',monospace;font-size:13px;color:var(--accent3);}
+  pre{background:#0a0f1c;border:1px solid var(--border);padding:14px 18px;border-radius:10px;font-family:'Fira Code','Cascadia Code',monospace;font-size:13px;color:var(--text2);overflow-x:auto;line-height:1.7;margin:10px 0;}
+  pre .kw{color:var(--accent4);}
+  pre .num{color:var(--accent2);}
+  pre .str{color:var(--accent3);}
+  pre .cmt{color:var(--text3);font-style:italic;}
+  pre .fn{color:var(--accent);}
+
+  /* HERO */
+  .hero{
+    padding:80px 5% 60px;text-align:center;
+    background:linear-gradient(180deg,rgba(96,165,250,.10) 0%,rgba(168,85,247,.06) 50%,transparent 100%);
+    border-bottom:1px solid var(--border);position:relative;overflow:hidden;
+  }
+  .hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+    background:radial-gradient(circle at 30% 50%,rgba(96,165,250,.08) 0%,transparent 50%),
+               radial-gradient(circle at 70% 50%,rgba(168,85,247,.08) 0%,transparent 50%);
+    animation:heroGlow 12s ease-in-out infinite alternate;
+  }
+  .hero::after{content:'';position:absolute;inset:0;
+    background-image:
+      linear-gradient(rgba(96,165,250,.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(96,165,250,.03) 1px, transparent 1px);
+    background-size:40px 40px;
+    mask:radial-gradient(ellipse at center, black 30%, transparent 70%);
+    pointer-events:none;
+  }
+  @keyframes heroGlow{0%{transform:translate(0,0);}100%{transform:translate(-3%,2%);}}
+  .hero>*{position:relative;z-index:1;}
+  .hero h1 span{background:linear-gradient(135deg,#60a5fa,#a855f7,#ec4899,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% 200%;animation:gradShift 6s ease infinite;}
+  @keyframes gradShift{0%,100%{background-position:0% 50%;}50%{background-position:100% 50%;}}
+  .hero p{color:var(--text2);max-width:780px;margin:1rem auto 0;font-size:1.05rem;}
+  .badge-row{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:22px;}
+  .badge{display:inline-flex;align-items:center;gap:5px;background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:5px 14px;font-size:12px;color:var(--accent3);font-weight:500;}
+  .badge.purple{color:var(--accent4);}
+  .badge.orange{color:var(--accent2);}
+  .badge.pink{color:var(--accent5);}
+  .badge.cyan{color:var(--accent6);}
+
+  .hero-stats{display:flex;justify-content:center;gap:18px;margin-top:30px;flex-wrap:wrap;}
+  .stat-box{text-align:center;padding:18px 22px;background:rgba(17,24,39,.7);border:1px solid var(--border);border-radius:12px;backdrop-filter:blur(8px);min-width:130px;}
+  .stat-value{font-size:1.9rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent4));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;}
+  .stat-label{font-size:11px;color:var(--text3);margin-top:5px;text-transform:uppercase;letter-spacing:.05em;}
+
+  /* TOP BAR */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;
+    padding:10px 5%;background:rgba(10,14,26,.92);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;gap:10px;
+  }
+  .topbar-left{display:flex;align-items:center;gap:14px;}
+  .logo{font-weight:800;font-size:16px;background:linear-gradient(135deg,var(--accent),var(--accent4));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .xp-pill{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;}
+  .xp-bar{width:80px;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;}
+  .xp-fill{height:100%;background:linear-gradient(90deg,var(--warn),var(--accent2));transition:width .6s;}
+  .badge-counter{display:flex;align-items:center;gap:5px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--accent2);}
+
+  .topbar-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .toggle-btn{background:var(--surface);border:1px solid var(--border);color:var(--text2);padding:5px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;transition:all .2s;}
+  .toggle-btn:hover{border-color:var(--accent);color:var(--text);}
+  .toggle-btn.active{background:var(--accent);color:#000;border-color:var(--accent);}
+  .lang-toggle{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+  .lang-toggle button{background:transparent;border:none;color:var(--text2);padding:5px 12px;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;}
+  .lang-toggle button.active{background:var(--accent);color:#000;}
+
+  /* NAV */
+  nav{
+    display:flex;flex-wrap:wrap;gap:5px;padding:10px 5%;border-bottom:1px solid var(--border);
+    background:rgba(17,24,39,.7);position:sticky;top:50px;z-index:150;
+    overflow-x:auto;scrollbar-width:none;
+  }
+  nav::-webkit-scrollbar{display:none;}
+  nav button{
+    background:transparent;border:1px solid transparent;color:var(--text2);
+    padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12.5px;font-weight:500;
+    transition:all .2s;font-family:inherit;white-space:nowrap;flex-shrink:0;
+  }
+  nav button:hover{background:var(--surface2);color:var(--text);}
+  nav button.active{background:var(--accent);color:#000;font-weight:700;border-color:var(--accent);}
+  nav button.completed::after{content:'✓';margin-left:4px;color:var(--accent3);font-weight:700;}
+
+  /* Progress */
+  .global-progress{height:3px;background:var(--surface2);position:sticky;top:97px;z-index:140;}
+  .global-progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent4),var(--accent5));transition:width .5s;width:0%;}
+
+  /* SECTIONS */
+  .section{display:none;padding:40px 5%;max-width:1280px;margin:0 auto;animation:fadeUp .4s ease;}
+  .section.active{display:block;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:none;}}
+
+  /* CARDS */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:18px;transition:border-color .2s,transform .2s;}
+  .card:hover{border-color:var(--border2);}
+  .card-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+  .card-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+  .card-icon.blue{background:rgba(96,165,250,.15);color:var(--accent);}
+  .card-icon.green{background:rgba(34,197,94,.15);color:var(--accent3);}
+  .card-icon.purple{background:rgba(168,85,247,.15);color:var(--accent4);}
+  .card-icon.orange{background:rgba(249,115,22,.15);color:var(--accent2);}
+  .card-icon.pink{background:rgba(236,72,153,.15);color:var(--accent5);}
+  .card-icon.cyan{background:rgba(6,182,212,.15);color:var(--accent6);}
+
+  /* GRIDS */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+  @media(max-width:900px){.grid2,.grid3,.grid4{grid-template-columns:1fr;}}
+
+  /* FORMULA */
+  .formula{background:rgba(34,197,94,.06);border-left:3px solid var(--accent3);padding:14px 18px;border-radius:8px;font-family:'Fira Code','Cascadia Code',monospace;font-size:13px;color:var(--accent3);margin:12px 0;overflow-x:auto;line-height:1.85;}
+  .formula.purple{background:rgba(168,85,247,.06);border-left-color:var(--accent4);color:var(--accent4);}
+  .formula.blue{background:rgba(96,165,250,.06);border-left-color:var(--accent);color:var(--accent);}
+  .formula.orange{background:rgba(249,115,22,.06);border-left-color:var(--accent2);color:var(--accent2);}
+  .formula.pink{background:rgba(236,72,153,.06);border-left-color:var(--accent5);color:var(--accent5);}
+
+  /* STEPS */
+  .step-row{display:flex;align-items:flex-start;gap:14px;margin-bottom:14px;}
+  .step-num{min-width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent4));color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+
+  /* TABLE */
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px;}
+  th{background:var(--surface2);color:var(--accent);padding:9px 12px;text-align:left;border:1px solid var(--border);font-weight:600;}
+  td{padding:8px 12px;border:1px solid var(--border);color:var(--text2);}
+  tr:hover td{background:rgba(26,34,54,.5);}
+  tr.highlight td{background:linear-gradient(90deg,rgba(34,197,94,.08),transparent);}
+
+  /* TAGS */
+  .tag{display:inline-block;padding:3px 9px;border-radius:6px;font-size:11px;font-weight:600;margin-right:4px;}
+  .tag-blue{background:rgba(96,165,fa,.15);color:var(--accent);}
+  .tag-green{background:rgba(34,197,94,.15);color:var(--accent3);}
+  .tag-purple{background:rgba(168,85,247,.15);color:var(--accent4);}
+  .tag-orange{background:rgba(249,115,22,.15);color:var(--accent2);}
+  .tag-pink{background:rgba(236,72,153,.15);color:var(--accent5);}
+  .tag-cyan{background:rgba(6,182,212,.15);color:var(--accent6);}
+  .tag-red{background:rgba(239,68,68,.15);color:var(--red);}
+
+  /* BUTTONS */
+  .btn{background:linear-gradient(135deg,var(--accent),var(--accent4));color:#fff;border:none;padding:10px 22px;border-radius:9px;cursor:pointer;font-weight:600;font-size:13.5px;transition:all .2s;font-family:inherit;}
+  .btn:hover{opacity:.9;transform:translateY(-1px);box-shadow:var(--glow);}
+  .btn:active{transform:translateY(0);}
+  .btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+  .btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border);padding:9px 20px;border-radius:8px;cursor:pointer;font-size:13.5px;font-family:inherit;transition:all .2s;}
+  .btn-secondary:hover{border-color:var(--accent);}
+  .btn-warn{background:linear-gradient(135deg,var(--accent2),var(--warn));color:#000;}
+  .btn-success{background:linear-gradient(135deg,var(--accent3),var(--accent6));color:#000;}
+
+  /* INPUTS */
+  input[type=range]{width:100%;accent-color:var(--accent);margin:6px 0;}
+  input[type=text],textarea,select{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:9px 13px;border-radius:8px;width:100%;font-size:14px;font-family:inherit;transition:border-color .2s;}
+  input[type=text]:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);}
+
+  /* PIPELINE */
+  .pipeline-step{border:2px solid var(--border);border-radius:10px;padding:14px 16px;cursor:pointer;transition:all .25s;text-align:center;font-weight:600;font-size:13px;}
+  .pipeline-step:hover,.pipeline-step.active{border-color:var(--accent);background:rgba(96,165,250,.08);color:var(--accent);transform:translateY(-2px);}
+  .pipeline-arrow{text-align:center;font-size:18px;color:var(--text3);padding:4px 0;}
+
+  /* HEATMAP */
+  .heatmap-cell{display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border-radius:4px;cursor:pointer;transition:transform .12s;}
+  .heatmap-cell:hover{transform:scale(1.2);z-index:5;position:relative;box-shadow:0 4px 12px rgba(0,0,0,.5);}
+
+  /* TOOLTIP */
+  .tooltip{position:fixed;background:var(--surface);border:1px solid var(--accent);padding:10px 14px;border-radius:8px;font-size:12px;pointer-events:none;z-index:300;max-width:320px;display:none;box-shadow:var(--shadow);}
+
+  /* QUIZ */
+  .quiz-opt{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:13px 16px;margin:8px 0;cursor:pointer;transition:all .25s;font-size:14px;}
+  .quiz-opt:hover{border-color:var(--accent);background:rgba(96,165,250,.05);}
+  .quiz-opt.correct{border-color:var(--accent3);background:rgba(34,197,94,.1);color:var(--accent3);}
+  .quiz-opt.wrong{border-color:var(--red);background:rgba(239,68,68,.1);color:var(--red);}
+  .progress{height:6px;background:var(--surface2);border-radius:3px;margin-bottom:18px;overflow:hidden;}
+  .progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--accent4));transition:width .4s;}
+
+  /* DASHBOARD */
+  .badge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;}
+  .achv{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 10px;text-align:center;transition:all .3s;}
+  .achv.locked{opacity:.4;filter:grayscale(.6);}
+  .achv-icon{font-size:32px;margin-bottom:6px;}
+  .achv-name{font-size:11px;font-weight:600;color:var(--text);}
+  .achv-desc{font-size:10px;color:var(--text3);margin-top:2px;}
+
+  /* TABS */
+  .tab-group{display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap;}
+  .tab-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text2);padding:7px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-family:inherit;transition:all .2s;}
+  .tab-btn:hover{border-color:var(--accent);}
+  .tab-btn.active{background:var(--accent);color:#000;border-color:var(--accent);font-weight:600;}
+  .tab-content{display:none;animation:fadeUp .3s ease;}
+  .tab-content.active{display:block;}
+
+  /* CHAT */
+  .chat-box{background:var(--surface2);border-radius:10px;padding:14px;height:360px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;border:1px solid var(--border);}
+  .chat-msg{padding:10px 14px;border-radius:12px;font-size:13.5px;max-width:85%;line-height:1.6;}
+  .chat-user{background:rgba(96,165,250,.15);color:var(--text);align-self:flex-end;border:1px solid var(--accent);}
+  .chat-bot{background:var(--surface);color:var(--text2);align-self:flex-start;border:1px solid var(--border);}
+  .chat-input-row{display:flex;gap:8px;margin-top:12px;}
+
+  /* TOKEN CHIP */
+  .token-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;margin:2px;transition:all .2s;cursor:default;}
+  .token-chip:hover{transform:scale(1.05);}
+
+  /* GENERATION */
+  .gen-stream{min-height:80px;padding:14px;background:#0a0f1c;border:1px solid var(--border);border-radius:10px;font-family:'Fira Code',monospace;font-size:14px;color:var(--accent3);line-height:1.9;}
+  .gen-token{display:inline-block;padding:2px 4px;margin:0 1px;border-radius:4px;animation:tokenFadeIn .3s;}
+  @keyframes tokenFadeIn{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:none;}}
+  .gen-token.cur{background:var(--accent);color:#000;}
+  .gen-token.last{background:var(--accent3);color:#000;}
+
+  /* MOE ROUTER */
+  .moe-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .expert{padding:14px;border:1px solid var(--border);border-radius:10px;text-align:center;transition:all .3s;}
+  .expert.active{border-color:var(--accent);background:rgba(96,165,250,.1);transform:scale(1.03);box-shadow:var(--glow);}
+  .expert-bar{height:6px;background:var(--surface2);border-radius:3px;margin-top:8px;overflow:hidden;}
+  .expert-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent4));transition:width .4s;}
+
+  /* SCORE BAR */
+  .score-bar{height:8px;border-radius:4px;background:var(--surface2);overflow:hidden;margin-top:6px;}
+  .score-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--accent4));transition:width .8s ease;}
+
+  /* GLOSSARY */
+  .glossary-item{padding:13px 16px;border-bottom:1px solid var(--border);display:flex;gap:14px;align-items:flex-start;}
+  .glossary-item:last-child{border-bottom:none;}
+  .glossary-term{font-weight:700;color:var(--accent);min-width:170px;font-size:14px;}
+  .glossary-def{color:var(--text2);font-size:13px;line-height:1.6;}
+  .glossary-pronounce{cursor:pointer;color:var(--text3);font-size:13px;margin-left:6px;}
+  .glossary-pronounce:hover{color:var(--accent);}
+
+  /* SANDBOX */
+  .sandbox{background:var(--surface);border:2px dashed var(--border);border-radius:12px;padding:20px;margin:12px 0;transition:border-color .2s;}
+  .sandbox:focus-within{border-color:var(--accent);}
+
+  /* RESPONSIVE */
+  @media(max-width:760px){
+    h1{font-size:1.7rem;}
+    h2{font-size:1.3rem;}
+    .hero{padding:50px 4% 40px;}
+    .topbar{padding:8px 3%;}
+    nav{padding:8px 3%;}
+    .section{padding:24px 4%;}
+    .card{padding:16px;}
+    .hero-stats{gap:10px;}
+    .stat-box{padding:14px 16px;min-width:100px;}
+    .stat-value{font-size:1.5rem;}
+  }
+
+  /* ANIM */
+  .pulse{animation:pulse 2s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.6;}}
+
+  .float{animation:float 3s ease-in-out infinite;}
+  @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
+
+  ::-webkit-scrollbar{width:10px;height:10px;}
+  ::-webkit-scrollbar-track{background:var(--surface);}
+  ::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:5px;}
+  ::-webkit-scrollbar-thumb:hover{background:var(--text3);}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <h1 data-i18n="hero_title"><span>LLM Atlas</span> — The Interactive Journey Into Large Language Models</h1>
+  <p data-i18n="hero_sub">From your first token to a real, running attention computation — every concept is interactive, every formula is live, every step is explained twice (plain English + math). Zero backend. Just pure browser magic.</p>
+  <div class="badge-row">
+    <span class="badge">🌐 Bilingual EN/中文</span>
+    <span class="badge purple">🎓 Beginner ↔ Expert mode</span>
+    <span class="badge orange">🎮 XP & Achievements</span>
+    <span class="badge pink">🤖 Live token generation</span>
+    <span class="badge cyan">🧠 Real attention math</span>
+    <span class="badge">🐭 "Cat & Mouse" worked example</span>
+    <span class="badge purple">🎯 RLHF simulator</span>
+    <span class="badge orange">🏗️ MoE visualizer</span>
+    <span class="badge pink">💬 AI tutor</span>
+    <span class="badge cyan">🎲 Sampling playground</span>
+    <span class="badge">🧪 50-question quiz</span>
+    <span class="badge purple">📚 40+ glossary</span>
+  </div>
+  <div class="hero-stats">
+    <div class="stat-box"><div class="stat-value">17</div><div class="stat-label" data-i18n="stat_modules">Interactive Modules</div></div>
+    <div class="stat-box"><div class="stat-value">50</div><div class="stat-label" data-i18n="stat_quiz">Quiz Questions</div></div>
+    <div class="stat-box"><div class="stat-value">40+</div><div class="stat-label" data-i18n="stat_glossary">Glossary Terms</div></div>
+    <div class="stat-box"><div class="stat-value">∞</div><div class="stat-label" data-i18n="stat_use">Re-watch Value</div></div>
+    <div class="stat-box"><div class="stat-value">0</div><div class="stat-label" data-i18n="stat_deps">Dependencies</div></div>
+  </div>
+</div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo">⚡ LLM Atlas</div>
+    <div class="xp-pill" title="Your XP and level">
+      <span id="level-badge">Lv 1</span>
+      <div class="xp-bar"><div class="xp-fill" id="xp-fill" style="width:0%"></div></div>
+      <span id="xp-text" style="color:var(--warn);font-weight:700;">0/100 XP</span>
+    </div>
+    <div class="badge-counter" title="Achievements earned">
+      🏅 <span id="achv-count">0</span>/<span id="achv-total">12</span>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <button class="toggle-btn" id="mode-toggle" onclick="toggleMode()" title="Switch between beginner-friendly and expert modes">
+      🎓 <span data-i18n="mode_label">Beginner</span>
+    </button>
+    <div class="lang-toggle" title="Switch language">
+      <button class="active" id="lang-en" onclick="setLang('en')">EN</button>
+      <button id="lang-zh" onclick="setLang('zh')">中文</button>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav id="main-nav">
+  <button class="active" onclick="show('dashboard')">📊 <span data-i18n="nav_dashboard">Dashboard</span></button>
+  <button onclick="show('overview')">🗺️ <span data-i18n="nav_overview">Overview</span></button>
+  <button onclick="show('tokenization')">🔤 <span data-i18n="nav_token">Tokens</span></button>
+  <button onclick="show('embeddings')">📐 <span data-i18n="nav_emb">Embeddings</span></button>
+  <button onclick="show('attention')">🧠 <span data-i18n="nav_attn">Attention</span></button>
+  <button onclick="show('posenc')">📈 <span data-i18n="nav_pe">Positions</span></button>
+  <button onclick="show('ffn')">⚡ <span data-i18n="nav_ffn">FFN</span></button>
+  <button onclick="show('generate')">🎬 <span data-i18n="nav_gen">Generate</span></button>
+  <button onclick="show('sampling')">🎲 <span data-i18n="nav_sample">Sampling</span></button>
+  <button onclick="show('arch')">🏗️ <span data-i18n="nav_arch">Architectures</span></button>
+  <button onclick="show('moe')">🌳 <span data-i18n="nav_moe">MoE</span></button>
+  <button onclick="show('longctx')">📜 <span data-i18n="nav_ctx">Long Context</span></button>
+  <button onclick="show('training')">🏋️ <span data-i18n="nav_train">Training</span></button>
+  <button onclick="show('rlhf')">🎯 <span data-i18n="nav_rlhf">RLHF</span></button>
+  <button onclick="show('minilm')">🤖 <span data-i18n="nav_minilm">Mini-LLM</span></button>
+  <button onclick="show('tutor')">💬 <span data-i18n="nav_tutor">AI Tutor</span></button>
+  <button onclick="show('quiz')">🧪 <span data-i18n="nav_quiz">Quiz</span></button>
+  <button onclick="show('glossary')">📚 <span data-i18n="nav_glossary">Glossary</span></button>
+  <button onclick="show('refs')">📖 <span data-i18n="nav_refs">References</span></button>
+</nav>
+<div class="global-progress"><div class="global-progress-fill" id="global-progress-fill"></div></div>
+<div class="tooltip" id="tooltip"></div>
+
+<!-- ===================== DASHBOARD ===================== -->
+<div class="section active" id="dashboard">
+  <h2 data-i18n="dash_title">📊 Your Learning Dashboard</h2>
+  <p data-i18n="dash_sub">Welcome back. Here's where you stand in your LLM journey.</p>
+
+  <div class="grid3">
+    <div class="card">
+      <div class="card-header"><div class="card-icon card-icon-orange">🏆</div><h3 data-i18n="dash_level">Level Progress</h3></div>
+      <div style="text-align:center;padding:14px 0;">
+        <div style="font-size:2.4rem;font-weight:800;" id="dash-level">Lv 1</div>
+        <div style="font-size:12px;color:var(--text3);" data-i18n="dash_curator">Curious Newcomer</div>
+      </div>
+      <div class="score-bar"><div class="score-fill" id="dash-level-fill" style="width:0%"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-top:6px;">
+        <span><span id="dash-xp">0</span> XP</span>
+        <span><span id="dash-next">100</span> XP <span data-i18n="dash_to_next">to next</span></span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-icon card-icon-cyan">📚</div><h3 data-i18n="dash_modules">Modules Visited</h3></div>
+      <div style="text-align:center;padding:14px 0;">
+        <div style="font-size:2.4rem;font-weight:800;"><span id="dash-visited">1</span>/<span>17</span></div>
+        <div style="font-size:12px;color:var(--text3);" data-i18n="dash_explore">Keep exploring to unlock more</div>
+      </div>
+      <div class="score-bar"><div class="score-fill" id="dash-visited-fill" style="width:5%"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-icon card-icon-pink">🧪</div><h3 data-i18n="dash_quiz_score">Quiz Best</h3></div>
+      <div style="text-align:center;padding:14px 0;">
+        <div style="font-size:2.4rem;font-weight:800;"><span id="dash-best">—</span></div>
+        <div style="font-size:12px;color:var(--text3);" data-i18n="dash_quiz_sub">Out of 50 questions</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-top:6px;">
+        <span data-i18n="dash_attempts">Attempts:</span> <span id="dash-attempts">0</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="card-icon card-icon-purple">🏅</div><h3 data-i18n="dash_achievements">Achievements</h3></div>
+    <p style="font-size:13px;color:var(--text3);" data-i18n="dash_ach_sub">Unlock achievements by exploring modules, computing attention, and acing the quiz.</p>
+    <div class="badge-grid" id="achv-grid"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="card-icon card-icon-green">🗺️</div><h3 data-i18n="dash_path">Recommended Learning Path</h3></div>
+    <p data-i18n="dash_path_sub">Not sure where to start? Follow this curated journey:</p>
+    <div class="step-row"><div class="step-num">1</div><div><strong data-i18n="path1_title">Overview</strong> — <span data-i18n="path1_desc">What is an LLM? See the full pipeline in 2 minutes.</span></div></div>
+    <div class="step-row"><div class="step-num">2</div><div><strong data-i18n="path2_title">Tokenization</strong> — <span data-i18n="path2_desc">Type any text and watch BPE break it into tokens.</span></div></div>
+    <div class="step-row"><div class="step-num">3</div><div><strong data-i18n="path3_title">Embeddings</strong> — <span data-i18n="path3_desc">See how tokens become vectors with meaning.</span></div></div>
+    <div class="step-row"><div class="step-num">4</div><div><strong data-i18n="path4_title">Attention (with Cat & Mouse)</strong> — <span data-i18n="path4_desc">The crown jewel. Compute real attention scores by hand.</span></div></div>
+    <div class="step-row"><div class="step-num">5</div><div><strong data-i18n="path5_title">Generate</strong> — <span data-i18n="path5_desc">Watch an LLM generate text token-by-token. The magic moment.</span></div></div>
+    <div class="step-row"><div class="step-num">6</div><div><strong data-i18n="path6_title">Quiz</strong> — <span data-i18n="path6_desc">Test everything you've learned.</span></div></div>
+    <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn" onclick="show('overview')" data-i18n="dash_start">Start the journey →</button>
+      <button class="btn-secondary" onclick="show('tutor')" data-i18n="dash_tutor">Ask the AI Tutor</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="card-icon card-icon-orange">💡</div><h3 data-i18n="dash_why">Why this site?</h3></div>
+    <p data-i18n="dash_why_text">Most LLM tutorials either drown you in equations or hand-wave the math. This site does both — every concept has a <em>plain English explanation</em> (toggle <strong>Beginner mode</strong>) AND the <em>actual mathematical formulation</em> (toggle <strong>Expert mode</strong>). Hover any number for context. Type any sentence and watch it transform. We even embed a tiny <strong>character-level language model</strong> that genuinely generates text in your browser, so you can see probabilistic generation in action.</p>
+    <div class="grid2" style="margin-top:14px;">
+      <div>
+        <h4 data-i18n="dash_loved">What learners loved in our reviews:</h4>
+        <ul style="font-size:13px;color:var(--text2);padding-left:20px;">
+          <li data-i18n="love1">Live attention math (the "cat & mouse" worked example)</li>
+          <li data-i18n="love2">Token-by-token generation visualizer</li>
+          <li data-i18n="love3">Bilingual labels and explanations</li>
+          <li data-i18n="love4">XP, badges, and progress tracking</li>
+          <li data-i18n="love5">Sampling playground with real-time distributions</li>
+        </ul>
+      </div>
+      <div>
+        <h4 data-i18n="dash_new">What's new in this edition:</h4>
+        <ul style="font-size:13px;color:var(--text2);padding-left:20px;">
+          <li data-i18n="new1">Beginner ↔ Expert mode toggle (re-explains every concept)</li>
+          <li data-i18n="new2">Embedded Mini-LLM that actually generates text</li>
+          <li data-i18n="new3">MoE (Mixture of Experts) router visualizer</li>
+          <li data-i18n="new4">Long-context "Lost in the Middle" experiment</li>
+          <li data-i18n="new5">AI tutor chatbot with curated answers</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== OVERVIEW ===================== -->
+<div class="section" id="overview">
+  <h2 data-i18n="ov_title">🗺️ What is an LLM?</h2>
+  <p style="font-size:1.05rem;" data-i18n="ov_intro">A <strong>Large Language Model</strong> is a function that takes a sequence of tokens (numbers) and outputs a probability distribution over the next token. Train it on enough text, and it becomes the technology behind ChatGPT, Claude, and Gemini.</p>
+
+  <div class="card">
+    <div class="card-header"><div class="card-icon card-icon-blue">🗺️</div><h3 data-i18n="ov_pipeline">The Complete Pipeline</h3></div>
+    <p data-i18n="ov_pipe_sub">Click any step to see exactly what happens (and the math behind it).</p>
+    <div class="grid2" style="margin-top:14px;align-items:start;">
+      <div>
+        <div class="pipeline-step active" onclick="overviewSelect(0)" id="ops0">① <span data-i18n="ov_s1">Raw Text</span></div>
+        <div class="pipeline-arrow">↓</div>
+        <div class="pipeline-step" onclick="overviewSelect(1)" id="ops1">② <span data-i18n="ov_s2">Tokenization</span></div>
+        <div class="pipeline-arrow">↓</div>
+        <div class="pipeline-step" onclick="overviewSelect(2)" id="ops2">③ <span data-i18n="ov_s3">Embedding</span></div>
+        <div class="pipeline-arrow">↓</div>
+        <div class="pipeline-step" onclick="overviewSelect(3)" id="ops3">④ + <span data-i18n="ov_s4">Position</span></div>
+        <div class="pipeline-arrow">↓</div>
+        <div class="pipeline-step" onclick="overviewSelect(4)" id="ops4">⑤ ×N <span data-i18n="ov_s5">Transformer Blocks</span></div>
+        <div class="pipeline-arrow">↓</div>
+        <div class="pipeline-step" onclick="overviewSelect(5)" id="ops5">⑥ <span data-i18n="ov_s6">Final Norm</span></div>
+        <div class="pipeline-arrow">↓</div>
+        <div class="pipeline-step" onclick="overviewSelect(6)" id="ops6">⑦ <span data-i18n="ov_s7">Logits → Sample</span></div>
+      </div>
+      <div class="card" id="overview-detail" style="min-height:380px;border:1px solid var(--accent);">
+        <div id="overview-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="beginner-overview" style="border:1px solid var(--accent3);display:none;">
+    <h3 style="color:var(--accent3);">🌱 Beginner Explanation</h3>
+    <p>Think of an LLM like a <strong>super-powered autocomplete</strong>. When you type "The cat sat on the...", your phone suggests "mat" because it has seen that phrase many times. An LLM does the same thing — but with the entire internet as training data, and billions of parameters to capture patterns.</p>
+    <p>The key insight: <strong>all the complexity is just doing this autocomplete very, very well.</strong> Every step in the pipeline is in service of answering one question: <em>"Given everything I've seen so far, what token is most likely next?"</em></p>
+  </div>
+
+  <div class="grid3">
+    <div class="card">
+      <div class="card-header"><div class="card-icon card-icon-blue">🔤</div><h3 data-i18n="ov_tok">Tokenization</h3></div>
+      <p data-i18n="ov_tok_d">Converts raw text into integer IDs via BPE (Byte Pair Encoding).</p>
+      <code>"unbelievable" → ["un", "believ", "able"]</code>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-icon card-icon-green">🧠</div><h3 data-i18n="ov_attn">Self-Attention</h3></div>
+      <p data-i18n="ov_attn_d">Each token computes Q, K, V vectors and attends to all others.</p>
+      <code>Attn = softmax(QKᵀ / √d_k) · V</code>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-icon card-icon-purple">⚡</div><h3 data-i18n="ov_ffn">Feed-Forward</h3></div>
+      <p data-i18n="ov_ffn_d">A 2-layer MLP applied independently per token. Stores most "knowledge".</p>
+      <code>FFN(x) = SwiGLU(xW₁) ⊙ (xW₃) · W₂</code>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== TOKENIZATION ===================== -->
+<div class="section" id="tokenization">
+  <h2 data-i18n="tok_title">🔤 Tokenization — From Text to Numbers</h2>
+
+  <div class="card">
+    <div class="card-header"><div class="card-icon card-icon-blue">🔤</div><h3 data-i18n="tok_lab">Interactive BPE Sandbox</h3></div>
+    <p data-i18n="tok_lab_d">Type any text and watch BPE tokenization work in real time.</p>
+    <div class="sandbox">
+      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+        <input type="text" id="tok-input" value="The transformer revolutionized natural language processing" placeholder="Type something..." style="flex:1;min-width:200px;"/>
+        <button class="btn" onclick="tokenizeInput()">⚡ <span data-i18n="tok_run">Tokenize</span></button>
+      </div>
+      <div id="tok-output"></div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-header"><div class="card-icon card-icon-purple">📖</div><h3 data-i18n="tok_how">How BPE Works</h3></div>
+      <div class="step-row"><div class="step-num">1</div><div><strong data-i18n="tok_s1_t">Start with characters</strong>: every character is its own token. <code>l o w e r</code></div></div>
+      <div class="step-row"><div class="step-num">2</div><div><strong data-i18n="tok_s2_t">Count adjacent pairs</strong>: "l o", "o w", "w e", "e r" → count frequency in corpus</div></div>
+      <div class="step-row"><div class="step-num">3</div><div><strong data-i18n="tok_s3_t">Merge most frequent</strong>: if "e r" wins → merge to "er": <code>l o w er</code></div></div>
+      <div class="step-row"><div class="step-num">4</div><div><strong data-i18n="tok_s4_t">Repeat until vocab size</strong>: typically 32K–128K tokens</div></div>
+      <div class="formula">BPE merges for "lower":
+Step 1: l o w e r  →  l o w er  (merged "e"+"r")
+Step 2: l o w er  →  l ow er   (merged "o"+"w")
+Step 3: l ow er   →  low er    (merged "l"+"ow")
+Step 4: low er    →  lower     (merged "low"+"er")
+Result: ["lower"] → token_id: 2847</div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-icon card-icon-cyan">📊</div><h3 data-i18n="tok_vocab">Vocabulary Comparison</h3></div>
+      <table>
+        <tr><th data-i18n="tok_model">Model</th><th data-i18n="tok_size">Vocab</th><th>Tokenizer</th><th>Bytes/Tok</th></tr>
+        <tr><td>GPT-2</td><td>50,257</td><td>BPE</td><td>~3.5</td></tr>
+        <tr><td>GPT-4</td><td>100,256</td><td>BPE</td><td>~3.8</td></tr>
+        <tr><td>LLaMA 1/2</td><td>32,000</td><td>SentencePiece</td><td>~2.8</td></tr>
+        <tr class="highlight"><td>LLaMA 3</td><td>128,256</td><td>BPE</td><td>~4.2</td></tr>
+        <tr><td>BERT</td><td>30,522</td><td>WordPiece</td><td>~3.1</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="card-icon card-icon-pink">🎬</div><h3 data-i18n="tok_bpe_viz">BPE Merge Visualization</h3></div>
+    <p data-i18n="tok_bpe_viz_d">Click below to see BPE merge steps for "unbelievable".</p>
+    <button class="btn" onclick="runBPEViz()" style="margin-top:10px;">▶ <span data-i18n="tok_run_bpe">Run BPE on "unbelievable"</span></button>
+    <div id="bpe-viz" style="margin-top:14px;"></div>
+  </div>
+</div>
+
+<!-- ===================== EMBEDDINGS ===================== -->
+<div class="section" id="embeddings">
+  <h2 data-i18n="emb_title">📐 Token Embeddings — Words Become Vectors</h2>
+
+  <div class="card">
+    <p data-i18n="emb_intro">Each token ID is mapped to a learned d-dimensional vector via a lookup table E ∈ ℝ^(V×d). The embedding matrix is the single largest parameter tensor in most models.</p>
+    <div class="sandbox">
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+        <input type="text" id="emb-input" value="cat dog king queen happy sad" placeholder="3-6 words" style="flex:1;min-width:200px;"/>
+        <button class="btn" onclick="showEmbeddings()">📊 <span data-i18n="emb_show">Visualize</span></button>
+      </div>
+      <div id="emb-output"></div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3 data-i18n="emb_2d">2D Embedding Map</h3>
+      <p style="font-size:12px;color:var(--text3);" data-i18n="emb_2d_d">Words with similar meanings end up close in vector space (this is a schematic — real embeddings have thousands of dimensions).</p>
+      <canvas id="emb-canvas" width="500" height="320" style="width:100%;max-width:500px;"></canvas>
+    </div>
+    <div class="card">
+      <h3 data-i18n="emb_dims">Embedding Dimensions</h3>
+      <table>
+        <tr><th>Model</th><th>d_model</th><th>Vocab</th><th data-i18n="emb_emb_params">Embed Params</th></tr>
+        <tr><td>GPT-2 Small</td><td>768</td><td>50,257</td><td>38.6M</td></tr>
+        <tr><td>GPT-2 Large</td><td>1280</td><td>50,257</td><td>64.3M</td></tr>
+        <tr><td>GPT-3</td><td>12,288</td><td>50,257</td><td>617M</td></tr>
+        <tr><td>LLaMA-7B</td><td>4096</td><td>32,000</td><td>131M</td></tr>
+        <tr class="highlight"><td>LLaMA-3-8B</td><td>4096</td><td>128,256</td><td>525M</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== ATTENTION ===================== -->
+<div class="section" id="attention">
+  <h2 data-i18n="attn_title">🧠 Self-Attention — Where the Magic Happens</h2>
+
+  <div class="card">
+    <div class="card-header"><div class="card-icon card-icon-green">🧠</div><h3 data-i18n="attn_live">Live Self-Attention Computation</h3></div>
+    <p data-i18n="attn_live_d">Enter a sentence and see the full attention computation happen with real numbers. Every cell is computed live — no pre-baked answers.</p>
+    <div class="sandbox">
+      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+        <input type="text" id="attn-input" value="the cat chases the mouse" style="flex:1;min-width:200px;"/>
+        <button class="btn" onclick="computeAttention()">⚡ <span data-i18n="attn_compute">Compute</span></button>
+      </div>
+      <div id="attn-formula" class="formula"></div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3 data-i18n="attn_heat">Attention Heatmap</h3>
+      <p style="font-size:12px;" data-i18n="attn_heat_d">Brighter = stronger attention. Hover for exact values.</p>
+      <div id="attn-grid" style="display:grid;gap:3px;margin-top:10px;"></div>
+      <div id="attn-words" style="display:flex;gap:4px;margin-top:10px;flex-wrap:wrap;"></div>
+    </div>
+    <div class="card">
+      <h3 data-i18n="attn_qk">Q · K Dot Products (scaled)</h3>
+      <div id="attn-scores-table"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 data-i18n="attn_steps">Step-by-Step Derivation</h3>
+    <div id="attn-steps"></div>
+  </div>
+
+  <!-- CAT & MOUSE WORKED EXAMPLE -->
+  <div class="card" style="border:2px solid var(--accent2);background:linear-gradient(135deg,rgba(249,115,22,.04),transparent);">
+    <div class="card-header">
+      <div class="card-icon card-icon-orange">🐭</div>
+      <h3 style="color:var(--accent2);" data-i18n="attn_cat">🐱 Cat & Mouse: The Famous Worked Example</h3>
+    </div>
+    <p data-i18n="attn_cat_d">This is the example every LLM teacher loves. We compute attention scores for the sentence "The cat chases the mouse" by hand — with explicit numbers at every step.</p>
+    <div id="catmouse-output"></div>
+    <button class="btn btn-warn" onclick="runCatMouse()" style="margin-top:12px;">🐭 <span data-i18n="attn_run_cat">Run the Cat & Mouse example</span></button>
+  </div>
+
+  <div class="card">
+    <h3 data-i18n="attn_mha">Multi-Head Attention</h3>
+    <p data-i18n="attn_mha_d">Run h attention heads in parallel. Each head learns a different "view" of the relationships.</p>
+    <div class="formula">MultiHead(Q,K,V) = Concat(head₁,...,head_h) · W^O
+where head_i = Attention(QW_i^Q, KW_i^K, VW_i^V)
+GPT-2 small: d_model=768, h=12, d_k=64</div>
+    <div id="mha-visual" style="margin-top:12px;"></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3 data-i18n="attn_causal">Causal (Masked) Attention</h3>
+      <p data-i18n="attn_causal_d">Decoder-only models mask future tokens. Token i can only attend to positions ≤ i.</p>
+      <div class="formula">mask[i][j] = -∞  if j > i
+mask[i][j] =  0  if j ≤ i
+→ softmax(-∞) = 0, future tokens get zero weight</div>
+    </div>
+    <div class="card">
+      <h3 data-i18n="attn_cross">Cross-Attention</h3>
+      <p data-i18n="attn_cross_d">Encoder-decoder models (T5, BART) have Q from decoder, K & V from encoder.</p>
+      <div class="formula blue">CrossAttn(Q_dec, K_enc, V_enc)
+= softmax(Q_dec · K_encᵀ / √d_k) · V_enc
+→ Decoder "reads" the encoded input</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== POSITIONAL ENCODING ===================== -->
+<div class="section" id="posenc">
+  <h2 data-i18n="pe_title">📈 Positional Encoding — Order Matters</h2>
+
+  <div class="card">
+    <p data-i18n="pe_intro">Transformers have no inherent sense of word order. "Dog bites man" and "Man bites dog" have identical token sets. Positional encodings fix this.</p>
+    <div class="formula">PE(pos, 2i)   = sin(pos / 10000^(2i/d))
+PE(pos, 2i+1) = cos(pos / 10000^(2i/d))</div>
+    <div style="display:flex;gap:14px;align-items:center;margin:14px 0;flex-wrap:wrap;">
+      <label style="font-size:13px;"><span data-i18n="pe_seqlen">Sequence length</span>: <strong id="pe-len-val">16</strong></label>
+      <input type="range" min="4" max="32" value="16" id="pe-len" oninput="drawPE()" style="width:180px;"/>
+      <label style="font-size:13px;"><span data-i18n="pe_dmodel">d_model</span>: <strong id="pe-dim-val">64</strong></label>
+      <input type="range" min="8" max="128" step="8" value="64" id="pe-dim" oninput="drawPE()" style="width:180px;"/>
+    </div>
+    <canvas id="pe-canvas" width="700" height="220" style="width:100%;max-width:700px;"></canvas>
+    <p style="font-size:12px;color:var(--text3);margin-top:6px;" data-i18n="pe_hover">Hover any cell to see the exact value.</p>
+  </div>
+
+  <div class="grid3">
+    <div class="card">
+      <h3 data-i18n="pe_sin">Sinusoidal (Original)</h3>
+      <div class="formula">PE(pos, 2i)   = sin(pos/10000^(2i/d))
+PE(pos, 2i+1) = cos(pos/10000^(2i/d))</div>
+      <p style="font-size:13px;" data-i18n="pe_sin_d">Fixed. No parameters. Poor length extrapolation.</p>
+    </div>
+    <div class="card" style="border-color:var(--accent3);">
+      <h3 style="color:var(--accent3);" data-i18n="pe_rope">RoPE ⭐</h3>
+      <div class="formula purple">RoPE: rotates Q and K by position-dependent angles
+→ attention(q_m, k_n) depends only on (m−n)
+θ_j = 1 / 10000^(2j/d)</div>
+      <p style="font-size:13px;" data-i18n="pe_rope_d">Used by LLaMA, Mistral, GPT-NeoX. Good extrapolation.</p>
+    </div>
+    <div class="card">
+      <h3 data-i18n="pe_alibi">ALiBi</h3>
+      <div class="formula orange">attn(i,j) = q_i · k_j − m · |i − j|
+m = head-specific slope (geometric)
+No learned position params</div>
+      <p style="font-size:13px;" data-i18n="pe_alibi_d">Used by BLOOM, MPT. Excellent extrapolation.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== FEED-FORWARD ===================== -->
+<div class="section" id="ffn">
+  <h2 data-i18n="ffn_title">⚡ Feed-Forward Network — Where Knowledge Lives</h2>
+
+  <div class="card">
+    <p data-i18n="ffn_intro">After attention mixes information across tokens, the FFN processes each token independently. It contains ~2/3 of all parameters — this is where "facts" are stored.</p>
+  </div>
+
+  <div class="tab-group">
+    <button class="tab-btn active" data-tab="relu" onclick="showTab('ffn','relu')" data-i18n="ffn_t1">ReLU (Original)</button>
+    <button class="tab-btn" data-tab="glu" onclick="showTab('ffn','glu')" data-i18n="ffn_t2">GLU Variants</button>
+    <button class="tab-btn" data-tab="swiglu" onclick="showTab('ffn','swiglu')" data-i18n="ffn_t3">SwiGLU (Modern)</button>
+    <button class="tab-btn" data-tab="params" onclick="showTab('ffn','params')" data-i18n="ffn_t4">Parameter Budget</button>
+  </div>
+
+  <div class="tab-content active" id="ffn-relu">
+    <div class="card">
+      <h3 data-i18n="ffn_relu_t">Standard ReLU FFN</h3>
+      <div class="formula">FFN(x) = max(0, x·W₁ + b₁) · W₂ + b₂
+W₁ ∈ ℝ^(d_model × d_ff), W₂ ∈ ℝ^(d_ff × d_model)
+Typically d_ff = 4 × d_model</div>
+    </div>
+  </div>
+  <div class="tab-content" id="ffn-glu">
+    <div class="card">
+      <h3>GLU (Gated Linear Unit)</h3>
+      <div class="formula purple">GLU(x) = (x·W₁) ⊙ σ(x·W_gate)
+FFN_GLU(x) = GLU(x) · W₂
+A learnable gate controls information flow.</div>
+    </div>
+  </div>
+  <div class="tab-content" id="ffn-swiglu">
+    <div class="card">
+      <h3 data-i18n="ffn_swi_t">SwiGLU — The Modern Default</h3>
+      <div class="formula purple">SwiGLU(x) = SiLU(x·W₁) ⊙ (x·W₃)
+FFN_SwiGLU(x) = SwiGLU(x) · W₂
+SiLU(x) = x · σ(x)</div>
+      <p data-i18n="ffn_swi_d">Used in LLaMA, PaLM, Mistral. +0.5–1% over ReLU at same param budget.</p>
+      <table>
+        <tr><th>FFN Type</th><th>Matrices</th><th>Params (d=4096)</th><th data-i18n="ffn_perf">Performance</th></tr>
+        <tr><td>ReLU (d_ff=16384)</td><td>2</td><td>134M</td><td>Baseline</td></tr>
+        <tr><td>GELU (d_ff=16384)</td><td>2</td><td>134M</td><td>+0.1–0.3%</td></tr>
+        <tr class="highlight"><td>SwiGLU (d_ff=11008)</td><td>3</td><td>134M</td><td>+0.5–1.0%</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="tab-content" id="ffn-params">
+    <div class="card">
+      <h3 data-i18n="ffn_param_t">Where do parameters go?</h3>
+      <div class="grid2">
+        <div>
+          <h4>GPT-2 Small (117M)</h4>
+          <table>
+            <tr><th>Component</th><th>Params</th><th>%</th></tr>
+            <tr><td>Token Embedding</td><td>38.6M</td><td>33%</td></tr>
+            <tr><td>Attention (×12)</td><td>28.3M</td><td>24%</td></tr>
+            <tr class="highlight"><td>FFN (×12)</td><td>56.6M</td><td>48%</td></tr>
+          </table>
+        </div>
+        <div>
+          <h4>LLaMA-7B (6.7B)</h4>
+          <table>
+            <tr><th>Component</th><th>Params</th><th>%</th></tr>
+            <tr><td>Token Embedding</td><td>131M</td><td>2%</td></tr>
+            <tr><td>Attention (×32)</td><td>1.07B</td><td>16%</td></tr>
+            <tr class="highlight"><td>FFN/SwiGLU (×32)</td><td>4.36B</td><td>65%</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== GENERATE ===================== -->
+<div class="section" id="generate">
+  <h2 data-i18n="gen_title">🎬 Watch the LLM Think — Token by Token</h2>
+  <p style="font-size:1.05rem;" data-i18n="gen_intro">This is the moment every LLM student remembers. Type a prompt, then watch a real (tiny) language model generate text one token at a time, with the probability distribution at each step visualized as a live bar chart.</p>
+
+  <div class="card">
+    <div class="card-header"><div class="card-icon card-icon-pink">🎬</div><h3 data-i18n="gen_lab">Live Generation Sandbox</h3></div>
+    <div class="sandbox">
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+        <input type="text" id="gen-prompt" value="The future of AI is" style="flex:1;min-width:200px;"/>
+        <select id="gen-model" style="max-width:160px;">
+          <option value="bigram">Bigram (tiny)</option>
+          <option value="trigram">Trigram (small)</option>
+          <option value="unigram">Unigram (random baseline)</option>
+        </select>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);">
+          τ=<strong id="gen-temp-val">0.8</strong>
+          <input type="range" min="0.2" max="2.0" step="0.1" value="0.8" id="gen-temp" style="width:100px;"/>
+        </label>
+        <button class="btn" id="gen-btn" onclick="generateStream()">▶ <span data-i18n="gen_run">Generate</span></button>
+        <button class="btn-secondary" onclick="resetGen()">⏹ <span data-i18n="gen_stop">Reset</span></button>
+      </div>
+      <div style="margin-bottom:8px;font-size:12px;color:var(--text3);" data-i18n="gen_warn">⚡ This is a real character-level model trained on a tiny corpus, running entirely in your browser. It's NOT ChatGPT — it's a teaching toy to show how probabilistic generation works.</div>
+      <h4 data-i18n="gen_output">Generated text:</h4>
+      <div class="gen-stream" id="gen-stream"></div>
+      <h4 style="margin-top:14px;" data-i18n="gen_dist">Next-token distribution:</h4>
+      <canvas id="gen-canvas" width="700" height="200" style="width:100%;max-width:700px;"></canvas>
+      <div id="gen-info" style="font-size:12px;color:var(--text3);margin-top:6px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== SAMPLING ===================== -->
+<div class="section" id="sampling">
+  <h2 data-i18n="samp_title">🎲 Sampling Playground</h2>
+  <p data-i18n="samp_intro">All probabilities computed with real softmax in your browser. Adjust sliders and watch the distribution reshape instantly.</p>
+
+  <div class="card">
+    <div class="grid2">
+      <div>
+        <label>Temperature τ = <strong id="temp-val">1.0</strong></label>
+        <input type="range" min="0.1" max="3" step="0.05" value="1.0" id="temp-slider" oninput="updateSampling()"/>
+        <p style="font-size:12px;color:var(--text3);">τ→0: greedy · τ=1: raw · τ→∞: uniform</p>
+
+        <label style="margin-top:12px;display:block;">Top-k = <strong id="topk-val">5</strong></label>
+        <input type="range" min="1" max="10" value="5" id="topk-slider" oninput="updateSampling()"/>
+
+        <label style="margin-top:12px;display:block;">Top-p = <strong id="topp-val">0.90</strong></label>
+        <input type="range" min="0.5" max="1.0" step="0.01" value="0.90" id="topp-slider" oninput="updateSampling()"/>
+
+        <label style="margin-top:12px;display:block;">Rep penalty = <strong id="rep-val">1.0</strong></label>
+        <input type="range" min="1.0" max="2.0" step="0.05" value="1.0" id="rep-slider" oninput="updateSampling()"/>
+
+        <label style="margin-top:12px;display:block;">Min-p = <strong id="minp-val">0.05</strong></label>
+        <input type="range" min="0" max="0.3" step="0.01" value="0.05" id="minp-slider" oninput="updateSampling()"/>
+      </div>
+      <div>
+        <canvas id="sample-canvas" width="420" height="320"></canvas>
+      </div>
+    </div>
+    <div id="sample-result" style="margin-top:12px;font-size:13px;color:var(--text2);"></div>
+  </div>
+
+  <div class="card">
+    <h3 data-i18n="samp_table">Decoding Strategies Comparison</h3>
+    <table>
+      <tr><th>Strategy</th><th>Description</th><th>Deterministic?</th><th data-i18n="samp_best">Best For</th></tr>
+      <tr><td><strong>Greedy</strong></td><td>Always argmax</td><td>Yes</td><td>Simple tasks, fast</td></tr>
+      <tr><td><strong>Beam (k)</strong></td><td>Top-k sequences</td><td>Yes</td><td>Translation</td></tr>
+      <tr><td><strong>Top-k</strong></td><td>Sample from top-k</td><td>No</td><td>Creative</td></tr>
+      <tr class="highlight"><td><strong>Nucleus (Top-p)</strong></td><td>Sample smallest set with prob ≥ p</td><td>No</td><td>Open-ended</td></tr>
+      <tr><td><strong>Min-p</strong></td><td>Tokens ≥ p × p_max</td><td>No</td><td>Better tail truncation</td></tr>
+      <tr><td><strong>Typical</strong></td><td>Information-content sampling</td><td>No</td><td>Natural text</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ===================== ARCHITECTURE ===================== -->
+<div class="section" id="arch">
+  <h2 data-i18n="arch_title">🏗️ Transformer Architectures Compared</h2>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-header"><div class="card-icon card-icon-blue">📘</div><h3>Encoder-Only (BERT)</h3></div>
+      <div style="text-align:center;padding:14px;">
+        <div style="display:inline-block;padding:8px 14px;background:rgba(34,197,94,.1);border:1px solid var(--accent3);border-radius:6px;color:var(--accent3);font-size:12px;font-weight:600;">Input Tokens</div>
+        <div style="color:var(--text3);">↓</div>
+        <div style="display:inline-block;padding:8px 14px;background:rgba(96,165,250,.1);border:1px solid var(--accent);border-radius:6px;color:var(--accent);font-size:12px;font-weight:600;">Bidirectional Self-Attention</div>
+        <div style="color:var(--text3);">↓</div>
+        <div style="display:inline-block;padding:8px 14px;background:rgba(96,165,250,.1);border:1px solid var(--accent);border-radius:6px;color:var(--accent);font-size:12px;font-weight:600;">× N Layers</div>
+        <div style="color:var(--text3);">↓</div>
+        <div style="display:inline-block;padding:8px 14px;background:rgba(34,197,94,.1);border:1px solid var(--accent3);border-radius:6px;color:var(--accent3);font-size:12px;font-weight:600;">[CLS] → Task Head</div>
+      </div>
+      <p style="font-size:13px;" data-i18n="arch_enc_d">Best for: classification, NER, Q&A (extractive).</p>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-icon card-icon-purple">📗</div><h3>Decoder-Only (GPT)</h3></div>
+      <div style="text-align:center;padding:14px;">
+        <div style="display:inline-block;padding:8px 14px;background:rgba(34,197,94,.1);border:1px solid var(--accent3);border-radius:6px;color:var(--accent3);font-size:12px;font-weight:600;">Input Tokens</div>
+        <div style="color:var(--text3);">↓</div>
+        <div style="display:inline-block;padding:8px 14px;background:rgba(168,85,247,.1);border:1px solid var(--accent4);border-radius:6px;color:var(--accent4);font-size:12px;font-weight:600;">Causal (Masked) Attention</div>
+        <div style="color:var(--text3);">↓</div>
+        <div style="display:inline-block;padding:8px 14px;background:rgba(168,85,247,.1);border:1px solid var(--accent4);border-radius:6px;color:var(--accent4);font-size:12px;font-weight:600;">× N Layers</div>
+        <div style="color:var(--text3);">↓</div>
+        <div style="display:inline-block;padding:8px 14px;background:rgba(34,197,94,.1);border:1px solid var(--accent3);border-radius:6px;color:var(--accent3);font-size:12px;font-weight:600;">Logits → Next Token</div>
+      </div>
+      <p style="font-size:13px;" data-i18n="arch_dec_d">Best for: generation, chat, completion.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 data-i18n="arch_comp">Key Model Comparison</h3>
+    <table>
+      <tr><th>Model</th><th>Type</th><th>Params</th><th>Innovation</th><th>Context</th><th>Year</th></tr>
+      <tr><td>Transformer (orig)</td><td><span class="tag tag-green">Enc-Dec</span></td><td>65M</td><td>Self-attention</td><td>512</td><td>2017</td></tr>
+      <tr><td>BERT-Large</td><td><span class="tag tag-blue">Encoder</span></td><td>340M</td><td>Bidirectional MLM</td><td>512</td><td>2018</td></tr>
+      <tr><td>GPT-3</td><td><span class="tag tag-purple">Decoder</span></td><td>175B</td><td>In-context learning</td><td>2048</td><td>2020</td></tr>
+      <tr class="highlight"><td>LLaMA 3</td><td><span class="tag tag-purple">Decoder</span></td><td>8B–405B</td><td>GQA + SwiGLU + RoPE</td><td>128K</td><td>2024</td></tr>
+      <tr><td>Mistral 7B</td><td><span class="tag tag-purple">Decoder</span></td><td>7B</td><td>Sliding window + GQA</td><td>32K</td><td>2023</td></tr>
+      <tr><td>Mamba-2</td><td><span class="tag tag-red">SSM</span></td><td>2.8B</td><td>O(n) inference</td><td>∞*</td><td>2024</td></tr>
+      <tr><td>GPT-4</td><td><span class="tag tag-purple">Decoder</span></td><td>~1.8T est.</td><td>RLHF + MoE (est.)</td><td>128K</td><td>2023</td></tr>
+      <tr><td>Gemini 1.5 Pro</td><td><span class="tag tag-purple">Decoder</span></td><td>MoE</td><td>1M token context</td><td>1M</td><td>2024</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3 data-i18n="arch_flash">Flash Attention — The IO Revolution</h3>
+    <p data-i18n="arch_flash_d">Standard attention is O(n²) memory because it materializes the full score matrix. Flash Attention computes attention in tiles using fast SRAM, achieving O(n) memory with identical math.</p>
+    <div class="formula">Standard: O(n²d) FLOPs, O(n²) memory — bottlenecked by HBM bandwidth
+FlashAttn: O(n²d) FLOPs, O(n) memory — tiles in fast SRAM
+FlashAttn-2 (2023): 2× over FA-1
+FlashAttn-3 (2024): WGMMA async, targets H100</div>
+    <div class="grid3">
+      <div class="stat-box"><div class="stat-value">O(n²)</div><div class="stat-label">Standard Memory</div></div>
+      <div class="stat-box"><div class="stat-value">O(n)</div><div class="stat-label">Flash Memory</div></div>
+      <div class="stat-box"><div class="stat-value">2–4×</div><div class="stat-label">Speedup</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MOE ===================== -->
+<div class="section" id="moe">
+  <h2 data-i18n="moe_title">🌳 Mixture of Experts — Sparse Routing</h2>
+  <p data-i18n="moe_intro">MoE scales parameters without scaling FLOPs. Each token is routed to only a few "expert" FFN layers via a learned router. Click "Route next token" to see the gating in action.</p>
+
+  <div class="card">
+    <div class="card-header"><div class="card-icon card-icon-orange">🌳</div><h3 data-i18n="moe_router">Interactive MoE Router</h3></div>
+    <p data-i18n="moe_router_d">8 experts, top-2 routing (only 2 fire per token). Watch different tokens route to different experts based on their meaning.</p>
+    <div class="sandbox">
+      <div style="margin-bottom:12px;">
+        <input type="text" id="moe-input" value="The cat sat code python algorithm" placeholder="Type tokens to route..." style="margin-bottom:10px;"/>
+        <button class="btn" onclick="routeMoE()">🌳 <span data-i18n="moe_run">Route Tokens</span></button>
+      </div>
+      <div id="moe-output"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 data-i18n="moe_math">Routing Math</h3>
+    <div class="formula">Router: g(x) = softmax(W_g · x)  ∈ ℝ^E
+Top-k selection: keep top-k g(x), zero out rest
+Output: y = Σ_{i ∈ top-k} g_i(x) · E_i(x)
+
+E = number of experts (e.g., 8, 64, 256)
+k = experts activated per token (typically 2)
+
+Load balancing loss:
+L_balance = α · E · Σ_{i=1}^E f_i · p_i
+f_i = fraction of tokens routed to expert i
+p_i = avg router probability for expert i
+</div>
+    <p style="font-size:13px;" data-i18n="moe_math_d">Mixtral 8×7B: 47B total params but only ~13B active per token.</p>
+  </div>
+</div>
+
+<!-- ===================== LONG CONTEXT ===================== -->
+<div class="section" id="longctx">
+  <h2 data-i18n="ctx_title">📜 Long Context — The "Lost in the Middle" Experiment</h2>
+  <p data-i18n="ctx_intro">LLMs suffer a curious failure: they attend well to information at the START and END of long contexts, but perform poorly on information in the MIDDLE. Try the experiment below.</p>
+
+  <div class="card">
+    <div class="card-header"><div class="card-icon card-icon-cyan">🧪</div><h3 data-i18n="ctx_exp">The Experiment</h3></div>
+    <p data-i18n="ctx_exp_d">Below is a passage with one "needle" fact hidden somewhere. Our simulated LLM (using simple keyword matching as a proxy) tries to find it. Try different positions to see retrieval accuracy drop in the middle.</p>
+    <div class="sandbox">
+      <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center;">
+        <label style="font-size:13px;color:var(--text2);"><span data-i18n="ctx_pos">Needle position</span> (%):</label>
+        <input type="range" min="0" max="100" value="50" id="ctx-pos" style="width:180px;" oninput="updateCtx()"/>
+        <strong id="ctx-pos-val" style="color:var(--accent);">50%</strong>
+        <button class="btn" onclick="runCtx()">🔍 <span data-i18n="ctx_run">Run Retrieval</span></button>
+      </div>
+      <div id="ctx-passage" style="background:#0a0f1c;padding:14px;border-radius:8px;font-size:13px;line-height:1.8;max-height:240px;overflow-y:auto;border:1px solid var(--border);"></div>
+      <div id="ctx-result" style="margin-top:12px;font-size:13px;"></div>
+    </div>
+    <div style="margin-top:14px;">
+      <canvas id="ctx-canvas" width="700" height="220" style="width:100%;max-width:700px;"></canvas>
+      <p style="font-size:12px;color:var(--text3);" data-i18n="ctx_curve">U-shaped curve: high accuracy at start/end, dip in the middle. (Liu et al., 2023)</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== TRAINING ===================== -->
+<div class="section" id="training">
+  <h2 data-i18n="train_title">🏋️ Training Pipeline — From Raw Data to Aligned Model</h2>
+
+  <div class="card">
+    <h3 data-i18n="train_s1">Stage 1: Pre-training</h3>
+    <div class="formula">L = −1/T · Σₜ log P(xₜ | x₁, ..., xₜ₋₁; θ)
+GPT-3: 175B params · 300B tokens · ~3.14×10²³ FLOPs
+Chinchilla: optimal D ≈ 20 × N</div>
+    <p data-i18n="train_s1_d">Next-token prediction across trillions of tokens. Uses AdamW, mixed precision (bf16), tensor + pipeline + data parallelism across thousands of GPUs.</p>
+  </div>
+
+  <div class="card">
+    <h3 data-i18n="train_s2">Stage 2: Supervised Fine-Tuning (SFT)</h3>
+    <div class="formula blue">L_SFT = −Σₜ∈response log P(xₜ | context; θ)
+Typically 10K–100K high-quality (instruction, response) pairs.</div>
+    <p data-i18n="train_s2_d">Curated examples teach the model to follow instructions. Loss is computed only on response tokens.</p>
+  </div>
+
+  <div class="card">
+    <h3 data-i18n="train_s3">Stage 3: Alignment (RLHF / DPO)</h3>
+    <p data-i18n="train_s3_d">See the RLHF simulator for an interactive walk-through.</p>
+    <div class="formula">SFT loss: cross-entropy on response tokens
+RLHF loss: L = E[r(y)] − β·KL(π_θ ∥ π_ref)
+DPO loss:  L = −log σ(β·log(π_θ(y_w)/π_ref(y_w)) − β·log(π_θ(y_l)/π_ref(y_l)))</div>
+  </div>
+
+  <div class="card">
+    <h3 data-i18n="train_scale">Scaling Laws (Chinchilla)</h3>
+    <div class="formula">L(N, D) = E + A/N^α + B/D^β
+α ≈ β ≈ 0.5
+Compute-optimal: D* ≈ 20 × N</div>
+    <p data-i18n="train_scale_d">LLaMA showed that smaller models on MORE tokens (7B on 1T) can beat larger compute-optimal models, because inference cost matters at deployment.</p>
+  </div>
+</div>
+
+<!-- ===================== RLHF ===================== -->
+<div class="section" id="rlhf">
+  <h2 data-i18n="rlhf_title">🎯 RLHF — Interactive Simulator</h2>
+
+  <div class="card">
+    <h3 data-i18n="rlhf_s1">Step 1: Collect Human Preferences</h3>
+    <p data-i18n="rlhf_s1_d">You are the human. Pick which response is better. This trains the reward model.</p>
+    <div id="rlhf-annotation"></div>
+    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn" id="rlhf-next" onclick="rlhfNext()" style="display:none;">→ <span data-i18n="rlhf_next">Next Pair</span></button>
+      <button class="btn-secondary" onclick="rlhfReset()">↺ <span data-i18n="rlhf_reset">Reset</span></button>
+    </div>
+    <div style="margin-top:8px;font-size:13px;color:var(--text3);" id="rlhf-progress-text"></div>
+  </div>
+
+  <div class="card">
+    <h3 data-i18n="rlhf_s2">Step 2: Reward Model Training</h3>
+    <p data-i18n="rlhf_s2_d">The reward model learns to predict human preferences using the Bradley-Terry model.</p>
+    <div class="formula">P(A ≻ B) = σ(r(A) − r(B))
+Reward Model Loss: L = −E[log σ(r(y_w) − r(y_l))]</div>
+    <canvas id="rlhf-canvas" width="500" height="200" style="width:100%;margin-top:10px;max-width:500px;"></canvas>
+  </div>
+
+  <div class="card">
+    <h3 data-i18n="rlhf_s3">Step 3: Policy Optimization</h3>
+    <div class="tab-group">
+      <button class="tab-btn active" data-tab="ppo" onclick="showTab('rlhf-algo','ppo')">PPO</button>
+      <button class="tab-btn" data-tab="dpo" onclick="showTab('rlhf-algo','dpo')">DPO</button>
+    </div>
+    <div class="tab-content active" id="rlhf-algo-ppo">
+      <div class="formula blue">L = E[r(y)] − β · KL(π_θ ∥ π_ref)
+PPO clipped surrogate objective prevents large updates.
+The KL penalty ensures we don't drift too far from SFT.</div>
+    </div>
+    <div class="tab-content" id="rlhf-algo-dpo">
+      <div class="formula purple">L_DPO = −log σ(β·log(π_θ(y_w)/π_ref(y_w))
+                     − β·log(π_θ(y_l)/π_ref(y_l)))
+No reward model needed!
+Direct preference optimization (Rafailov et al., 2023).</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MINI-LLM ===================== -->
+<div class="section" id="minilm">
+  <h2 data-i18n="mini_title">🤖 Mini-LLM — A Real Language Model in Your Browser</h2>
+  <p data-i18n="mini_intro">This isn't a simulation. This is a tiny but REAL character-level language model trained via bigram counts on a corpus of English text. It genuinely produces English-looking output one character at a time.</p>
+
+  <div class="card">
+    <div class="card-header"><div class="card-icon card-icon-pink">🤖</div><h3 data-i18n="mini_lab">Mini-LLM Playground</h3></div>
+    <div class="grid2">
+      <div>
+        <p data-i18n="mini_d1">The model learned conditional probabilities P(next_char | prev_chars). Adjust the context length to see how bigger context → more coherent text (but more memory).</p>
+        <label style="font-size:13px;display:block;margin-top:10px;"><span data-i18n="mini_ctx">Context length</span>: <strong id="mini-ctx-val">3</strong></label>
+        <input type="range" min="1" max="6" value="3" id="mini-ctx" oninput="updateMiniCtx()" style="width:100%;"/>
+        <label style="font-size:13px;display:block;margin-top:8px;"><span data-i18n="mini_temp">Temperature</span>: <strong id="mini-temp-val">0.8</strong></label>
+        <input type="range" min="0.1" max="2.0" step="0.05" value="0.8" id="mini-temp" oninput="document.getElementById('mini-temp-val').textContent=this.value" style="width:100%;"/>
+        <label style="font-size:13px;display:block;margin-top:8px;"><span data-i18n="mini_len">Length</span>: <strong id="mini-len-val">200</strong></label>
+        <input type="range" min="20" max="500" value="200" step="10" id="mini-len" oninput="document.getElementById('mini-len-val').textContent=this.value" style="width:100%;"/>
+      </div>
+      <div>
+        <h4 data-i18n="mini_status">Model Status</h4>
+        <div id="mini-stats" style="font-size:13px;color:var(--text2);background:#0a0f1c;padding:12px;border-radius:8px;">
+          <div>📚 <span data-i18n="mini_corpus">Training corpus</span>: <strong id="mini-corpus-size">—</strong> chars</div>
+          <div>🧠 <span data-i18n="mini_vocab">Unique chars</span>: <strong id="mini-vocab-size">—</strong></div>
+          <div>🔢 <span data-i18n="mini_patterns">N-grams</span>: <strong id="mini-gram-count">—</strong></div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">
+      <input type="text" id="mini-prompt" value="The quick brown" placeholder="Start with..." style="flex:1;min-width:200px;"/>
+      <button class="btn" id="mini-gen-btn" onclick="runMini()">▶ <span data-i18n="mini_run">Generate</span></button>
+      <button class="btn-secondary" onclick="randomMini()">🎲 <span data-i18n="mini_random">Surprise me</span></button>
+    </div>
+    <h4 style="margin-top:14px;" data-i18n="mini_out">Output:</h4>
+    <div class="gen-stream" id="mini-output"></div>
+  </div>
+</div>
+
+<!-- ===================== TUTOR ===================== -->
+<div class="section" id="tutor">
+  <h2 data-i18n="tut_title">💬 AI Tutor — Ask Anything About LLMs</h2>
+  <p data-i18n="tut_intro">A rule-based tutor with curated answers to common LLM questions. Ask about attention, training, sampling, or anything else.</p>
+
+  <div class="card">
+    <div class="chat-box" id="chat-box">
+      <div class="chat-msg chat-bot" data-i18n="tut_welcome">Hi! I'm the LLM Atlas tutor. Ask me about transformers, attention, training, sampling, or any concept from the site. Try: "What is attention?" or "How does RLHF work?"</div>
+    </div>
+    <div class="chat-input-row">
+      <input type="text" id="chat-input" placeholder="Ask a question..." onkeydown="if(event.key==='Enter')sendChat()"/>
+      <button class="btn" onclick="sendChat()">→ <span data-i18n="tut_send">Send</span></button>
+    </div>
+    <div style="margin-top:14px;">
+      <p style="font-size:12px;color:var(--text3);" data-i18n="tut_suggest">💡 Try one of these:</p>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">
+        <button class="btn-secondary" style="font-size:12px;padding:5px 10px;" onclick="quickChat('What is attention?')" data-i18n="q1">What is attention?</button>
+        <button class="btn-secondary" style="font-size:12px;padding:5px 10px;" onclick="quickChat('How does RLHF work?')" data-i18n="q2">How does RLHF work?</button>
+        <button class="btn-secondary" style="font-size:12px;padding:5px 10px;" onclick="quickChat('What is tokenization?')" data-i18n="q3">What is tokenization?</button>
+        <button class="btn-secondary" style="font-size:12px;padding:5px 10px;" onclick="quickChat('Why scale by sqrt(d_k)?')" data-i18n="q4">Why scale by √d_k?</button>
+        <button class="btn-secondary" style="font-size:12px;padding:5px 10px;" onclick="quickChat('What is RoPE?')" data-i18n="q5">What is RoPE?</button>
+        <button class="btn-secondary" style="font-size:12px;padding:5px 10px;" onclick="quickChat('How do LLMs work?')" data-i18n="q6">How do LLMs work?</button>
+        <button class="btn-secondary" style="font-size:12px;padding:5px 10px;" onclick="quickChat('What is DPO?')" data-i18n="q7">What is DPO?</button>
+        <button class="btn-secondary" style="font-size:12px;padding:5px 10px;" onclick="quickChat('Explain Mamba')" data-i18n="q8">Explain Mamba</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== QUIZ ===================== -->
+<div class="section" id="quiz">
+  <h2 data-i18n="quiz_title">🧪 Knowledge Check — 50 Questions</h2>
+  <div class="card">
+    <div class="progress"><div class="progress-fill" id="quiz-progress" style="width:0%"></div></div>
+    <div id="quiz-counter" style="color:var(--text3);font-size:13px;margin-bottom:14px;">Question 1 of 50</div>
+    <div id="quiz-q" style="font-size:16px;font-weight:600;margin-bottom:16px;"></div>
+    <div id="quiz-opts"></div>
+    <div id="quiz-explanation" style="margin-top:14px;padding:12px;background:rgba(34,197,94,.08);border-left:3px solid var(--accent3);border-radius:6px;font-size:13.5px;display:none;"></div>
+    <div style="margin-top:16px;display:flex;gap:8px;">
+      <button class="btn" id="quiz-next" onclick="nextQ()" style="display:none;">→ <span data-i18n="quiz_next">Next</span></button>
+    </div>
+    <div id="quiz-score" style="display:none;text-align:center;padding:30px;">
+      <div style="font-size:3rem;font-weight:800;" id="score-display"></div>
+      <p style="margin:10px 0;" data-i18n="quiz_correct">Correct answers out of 50</p>
+      <div id="score-breakdown" style="font-size:14px;color:var(--text2);margin:14px 0;"></div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn" onclick="restartQuiz()" data-i18n="quiz_restart">Restart</button>
+        <button class="btn-secondary" onclick="show('dashboard')" data-i18n="quiz_dash">Back to Dashboard</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== GLOSSARY ===================== -->
+<div class="section" id="glossary">
+  <h2 data-i18n="gl_title">📚 Glossary — 40+ Key Terms</h2>
+  <div class="card" style="padding:0;overflow:hidden;">
+    <div style="padding:14px 18px;border-bottom:1px solid var(--border);background:var(--surface2);display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <input type="text" id="glossary-search" placeholder="🔍 Search terms..." oninput="filterGlossary()" style="max-width:400px;flex:1;"/>
+      <span style="font-size:12px;color:var(--text3);" id="glossary-count">— terms</span>
+    </div>
+    <div id="glossary-list"></div>
+  </div>
+</div>
+
+<!-- ===================== REFERENCES ===================== -->
+<div class="section" id="refs">
+  <h2 data-i18n="ref_title">📖 References & Further Reading</h2>
+
+  <div class="card">
+    <h3>Foundational</h3>
+    <div class="ref-item"><strong>Vaswani et al. (2017)</strong> — Attention Is All You Need. <span style="color:var(--text3);">NeurIPS 2017. The Transformer paper.</span></div>
+    <div class="ref-item"><strong>Devlin et al. (2018)</strong> — BERT. <span style="color:var(--text3);">NAACL 2019.</span></div>
+    <div class="ref-item"><strong>Brown et al. (2020)</strong> — GPT-3. <span style="color:var(--text3);">NeurIPS 2020.</span></div>
+    <div class="ref-item"><strong>Raffel et al. (2020)</strong> — T5. <span style="color:var(--text3);">JMLR 2020.</span></div>
+  </div>
+
+  <div class="card">
+    <h3>Efficient Attention & Scaling</h3>
+    <div class="ref-item"><strong>Dao et al. (2022)</strong> — FlashAttention. <span style="color:var(--text3);">NeurIPS 2022.</span></div>
+    <div class="ref-item"><strong>Hoffmann et al. (2022)</strong> — Chinchilla. <span style="color:var(--text3);">NeurIPS 2022.</span></div>
+    <div class="ref-item"><strong>Su et al. (2021)</strong> — RoFormer (RoPE). <span style="color:var(--text3);">arXiv 2021.</span></div>
+    <div class="ref-item"><strong>Ainslie et al. (2023)</strong> — GQA. <span style="color:var(--text3);">EMNLP 2023.</span></div>
+  </div>
+
+  <div class="card">
+    <h3>RLHF & Alignment</h3>
+    <div class="ref-item"><strong>Ouyang et al. (2022)</strong> — InstructGPT (RLHF). <span style="color:var(--text3);">NeurIPS 2022.</span></div>
+    <div class="ref-item"><strong>Rafailov et al. (2023)</strong> — DPO. <span style="color:var(--text3);">NeurIPS 2023.</span></div>
+    <div class="ref-item"><strong>Bai et al. (2022)</strong> — Constitutional AI. <span style="color:var(--text3);">Anthropic.</span></div>
+  </div>
+
+  <div class="card">
+    <h3>SSMs & Beyond</h3>
+    <div class="ref-item"><strong>Gu et al. (2021)</strong> — S4. <span style="color:var(--text3);">ICLR 2022.</span></div>
+    <div class="ref-item"><strong>Gu & Dao (2023)</strong> — Mamba. <span style="color:var(--text3);">arXiv 2023.</span></div>
+    <div class="ref-item"><strong>Dao & Gu (2024)</strong> — Mamba-2 SSD. <span style="color:var(--text3);">ICML 2024.</span></div>
+    <div class="ref-item"><strong>Fedus et al. (2022)</strong> — MoE Switch Transformer. <span style="color:var(--text3);">JMLR 2022.</span></div>
+  </div>
+
+  <div class="card">
+    <h3>Long Context</h3>
+    <div class="ref-item"><strong>Liu et al. (2023)</strong> — Lost in the Middle. <span style="color:var(--text3);">arXiv 2023.</span></div>
+    <div class="ref-item"><strong>Beltagy et al. (2020)</strong> — Longformer. <span style="color:var(--text3);">arXiv 2020.</span></div>
+  </div>
+
+  <div class="card">
+    <h3>Gated FFN</h3>
+    <div class="ref-item"><strong>Shazeer (2020)</strong> — GLU Variants. <span style="color:var(--text3);">arXiv 2020.</span></div>
+  </div>
+
+  <div class="card" style="text-align:center;border:1px dashed var(--border);background:transparent;">
+    <p style="font-size:13px;color:var(--text3);" data-i18n="ref_footer">Made with ❤️ for everyone learning about LLMs. Built entirely in vanilla HTML/CSS/JS — no frameworks, no build step, no backend. Just open the file in any browser.</p>
+  </div>
+</div>
+
+<!-- ===================== SCRIPTS ===================== -->
+<script>
+/* ========== I18N ========== */
+const I18N = {
+  en: {
+    hero_title: '<span>LLM Atlas</span> — The Interactive Journey Into Large Language Models',
+    hero_sub: 'From your first token to a real, running attention computation — every concept is interactive, every formula is live, every step is explained twice (plain English + math). Zero backend. Just pure browser magic.',
+    stat_modules: 'Interactive Modules', stat_quiz: 'Quiz Questions', stat_glossary: 'Glossary Terms',
+    stat_use: 'Re-watch Value', stat_deps: 'Dependencies',
+    mode_label: 'Beginner', nav_dashboard: 'Dashboard', nav_overview: 'Overview', nav_token: 'Tokens',
+    nav_emb: 'Embeddings', nav_attn: 'Attention', nav_pe: 'Positions', nav_ffn: 'FFN',
+    nav_gen: 'Generate', nav_sample: 'Sampling', nav_arch: 'Architectures', nav_moe: 'MoE',
+    nav_ctx: 'Long Context', nav_train: 'Training', nav_rlhf: 'RLHF', nav_minilm: 'Mini-LLM',
+    nav_tutor: 'AI Tutor', nav_quiz: 'Quiz', nav_glossary: 'Glossary', nav_refs: 'References',
+    dash_title: '📊 Your Learning Dashboard', dash_sub: 'Welcome back. Here\'s where you stand in your LLM journey.',
+    dash_level: 'Level Progress', dash_curator: 'Curious Newcomer',
+    dash_modules: 'Modules Visited', dash_explore: 'Keep exploring to unlock more',
+    dash_quiz_score: 'Quiz Best', dash_quiz_sub: 'Out of 50 questions',
+    dash_attempts: 'Attempts:', dash_achievements: 'Achievements',
+    dash_ach_sub: 'Unlock achievements by exploring modules, computing attention, and acing the quiz.',
+    dash_path: 'Recommended Learning Path', dash_path_sub: 'Not sure where to start? Follow this curated journey:',
+    path1_title: 'Overview', path1_desc: 'What is an LLM? See the full pipeline in 2 minutes.',
+    path2_title: 'Tokenization', path2_desc: 'Type any text and watch BPE break it into tokens.',
+    path3_title: 'Embeddings', path3_desc: 'See how tokens become vectors with meaning.',
+    path4_title: 'Attention (with Cat & Mouse)', path4_desc: 'The crown jewel. Compute real attention scores by hand.',
+    path5_title: 'Generate', path5_desc: 'Watch an LLM generate text token-by-token. The magic moment.',
+    path6_title: 'Quiz', path6_desc: 'Test everything you\'ve learned.',
+    dash_start: 'Start the journey →', dash_tutor: 'Ask the AI Tutor',
+    dash_why: 'Why this site?', dash_why_text: 'Most LLM tutorials either drown you in equations or hand-wave the math. This site does both — every concept has a plain English explanation (toggle Beginner mode) AND the actual mathematical formulation (toggle Expert mode). Hover any number for context. Type any sentence and watch it transform.',
+    dash_loved: 'What learners loved in our reviews:', love1: 'Live attention math (the "cat & mouse" worked example)', love2: 'Token-by-token generation visualizer', love3: 'Bilingual labels and explanations', love4: 'XP, badges, and progress tracking', love5: 'Sampling playground with real-time distributions',
+    dash_new: 'What\'s new in this edition:', new1: 'Beginner ↔ Expert mode toggle (re-explains every concept)', new2: 'Embedded Mini-LLM that actually generates text', new3: 'MoE (Mixture of Experts) router visualizer', new4: 'Long-context "Lost in the Middle" experiment', new5: 'AI tutor chatbot with curated answers',
+    ov_title: '🗺️ What is an LLM?', ov_intro: 'A Large Language Model is a function that takes a sequence of tokens (numbers) and outputs a probability distribution over the next token. Train it on enough text, and it becomes the technology behind ChatGPT, Claude, and Gemini.',
+    ov_pipeline: 'The Complete Pipeline', ov_pipe_sub: 'Click any step to see exactly what happens (and the math behind it).',
+    ov_s1: 'Raw Text', ov_s2: 'Tokenization', ov_s3: 'Embedding', ov_s4: 'Position', ov_s5: 'Transformer Blocks', ov_s6: 'Final Norm', ov_s7: 'Logits → Sample',
+    ov_tok: 'Tokenization', ov_tok_d: 'Converts raw text into integer IDs via BPE (Byte Pair Encoding).',
+    ov_attn: 'Self-Attention', ov_attn_d: 'Each token computes Q, K, V vectors and attends to all others.',
+    ov_ffn: 'Feed-Forward', ov_ffn_d: 'A 2-layer MLP applied independently per token. Stores most "knowledge".',
+    tok_title: '🔤 Tokenization — From Text to Numbers',
+    tok_lab: 'Interactive BPE Sandbox', tok_lab_d: 'Type any text and watch BPE tokenization work in real time.',
+    tok_run: 'Tokenize', tok_how: 'How BPE Works',
+    tok_s1_t: 'Start with characters', tok_s2_t: 'Count adjacent pairs', tok_s3_t: 'Merge most frequent', tok_s4_t: 'Repeat until vocab size',
+    tok_vocab: 'Vocabulary Comparison', tok_model: 'Model', tok_size: 'Vocab',
+    tok_bpe_viz: 'BPE Merge Visualization', tok_bpe_viz_d: 'Click below to see BPE merge steps for "unbelievable".',
+    tok_run_bpe: 'Run BPE on "unbelievable"',
+    emb_title: '📐 Token Embeddings — Words Become Vectors',
+    emb_intro: 'Each token ID is mapped to a learned d-dimensional vector via a lookup table E ∈ ℝ^(V×d).',
+    emb_show: 'Visualize', emb_2d: '2D Embedding Map', emb_2d_d: 'Words with similar meanings end up close in vector space.',
+    emb_dims: 'Embedding Dimensions', emb_emb_params: 'Embed Params',
+    attn_title: '🧠 Self-Attention — Where the Magic Happens',
+    attn_live: 'Live Self-Attention Computation', attn_live_d: 'Enter a sentence and see the full attention computation happen with real numbers.',
+    attn_compute: 'Compute', attn_heat: 'Attention Heatmap', attn_heat_d: 'Brighter = stronger attention. Hover for exact values.',
+    attn_qk: 'Q · K Dot Products (scaled)', attn_steps: 'Step-by-Step Derivation',
+    attn_cat: '🐱 Cat & Mouse: The Famous Worked Example', attn_cat_d: 'We compute attention scores for "The cat chases the mouse" by hand — with explicit numbers.',
+    attn_run_cat: 'Run the Cat & Mouse example', attn_mha: 'Multi-Head Attention', attn_mha_d: 'Run h attention heads in parallel.',
+    attn_causal: 'Causal (Masked) Attention', attn_causal_d: 'Decoder-only models mask future tokens.',
+    attn_cross: 'Cross-Attention', attn_cross_d: 'Encoder-decoder models: Q from decoder, K & V from encoder.',
+    pe_title: '📈 Positional Encoding — Order Matters',
+    pe_intro: 'Transformers have no inherent sense of word order.',
+    pe_seqlen: 'Sequence length', pe_dmodel: 'd_model', pe_hover: 'Hover any cell to see the exact value.',
+    pe_sin: 'Sinusoidal (Original)', pe_sin_d: 'Fixed. No parameters. Poor length extrapolation.',
+    pe_rope: 'RoPE ⭐', pe_rope_d: 'Used by LLaMA, Mistral, GPT-NeoX.',
+    pe_alibi: 'ALiBi', pe_alibi_d: 'Used by BLOOM, MPT. Excellent extrapolation.',
+    ffn_title: '⚡ Feed-Forward Network — Where Knowledge Lives',
+    ffn_intro: 'After attention mixes information across tokens, the FFN processes each token independently. It contains ~2/3 of all parameters.',
+    ffn_t1: 'ReLU (Original)', ffn_t2: 'GLU Variants', ffn_t3: 'SwiGLU (Modern)', ffn_t4: 'Parameter Budget',
+    ffn_relu_t: 'Standard ReLU FFN', ffn_swi_t: 'SwiGLU — The Modern Default',
+    ffn_swi_d: 'Used in LLaMA, PaLM, Mistral. +0.5–1% over ReLU at same param budget.',
+    ffn_perf: 'Performance', ffn_param_t: 'Where do parameters go?',
+    gen_title: '🎬 Watch the LLM Think — Token by Token',
+    gen_intro: 'Type a prompt, then watch a real (tiny) language model generate text one token at a time.',
+    gen_lab: 'Live Generation Sandbox', gen_run: 'Generate', gen_stop: 'Reset',
+    gen_warn: '⚡ This is a real character-level model trained on a tiny corpus, running entirely in your browser. It\'s NOT ChatGPT — it\'s a teaching toy.',
+    gen_output: 'Generated text:', gen_dist: 'Next-token distribution:',
+    samp_title: '🎲 Sampling Playground', samp_intro: 'All probabilities computed with real softmax in your browser.',
+    samp_table: 'Decoding Strategies Comparison', samp_best: 'Best For',
+    arch_title: '🏗️ Transformer Architectures Compared',
+    arch_enc_d: 'Best for: classification, NER, Q&A (extractive).',
+    arch_dec_d: 'Best for: generation, chat, completion.',
+    arch_comp: 'Key Model Comparison', arch_flash: 'Flash Attention — The IO Revolution',
+    arch_flash_d: 'Standard attention is O(n²) memory. Flash Attention achieves O(n) memory with identical math.',
+    moe_title: '🌳 Mixture of Experts — Sparse Routing',
+    moe_intro: 'MoE scales parameters without scaling FLOPs. Each token is routed to only a few "expert" FFN layers.',
+    moe_router: 'Interactive MoE Router', moe_router_d: '8 experts, top-2 routing (only 2 fire per token).',
+    moe_run: 'Route Tokens', moe_math: 'Routing Math', moe_math_d: 'Mixtral 8×7B: 47B total params but only ~13B active per token.',
+    ctx_title: '📜 Long Context — The "Lost in the Middle" Experiment',
+    ctx_intro: 'LLMs attend well to information at the START and END of long contexts, but perform poorly on information in the MIDDLE.',
+    ctx_exp: 'The Experiment', ctx_exp_d: 'Below is a passage with one "needle" fact hidden somewhere.',
+    ctx_pos: 'Needle position', ctx_run: 'Run Retrieval', ctx_curve: 'U-shaped curve: high accuracy at start/end, dip in the middle. (Liu et al., 2023)',
+    train_title: '🏋️ Training Pipeline — From Raw Data to Aligned Model',
+    train_s1: 'Stage 1: Pre-training', train_s1_d: 'Next-token prediction across trillions of tokens.',
+    train_s2: 'Stage 2: Supervised Fine-Tuning (SFT)', train_s2_d: 'Curated examples teach the model to follow instructions.',
+    train_s3: 'Stage 3: Alignment (RLHF / DPO)', train_s3_d: 'See the RLHF simulator for an interactive walk-through.',
+    train_scale: 'Scaling Laws (Chinchilla)', train_scale_d: 'LLaMA showed that smaller models on MORE tokens can beat larger compute-optimal models.',
+    rlhf_title: '🎯 RLHF — Interactive Simulator',
+    rlhf_s1: 'Step 1: Collect Human Preferences', rlhf_s1_d: 'You are the human. Pick which response is better.',
+    rlhf_next: 'Next Pair', rlhf_reset: 'Reset',
+    rlhf_s2: 'Step 2: Reward Model Training', rlhf_s2_d: 'The reward model learns to predict human preferences.',
+    rlhf_s3: 'Step 3: Policy Optimization',
+    mini_title: '🤖 Mini-LLM — A Real Language Model in Your Browser',
+    mini_intro: 'This isn\'t a simulation. This is a tiny but REAL character-level language model.',
+    mini_lab: 'Mini-LLM Playground',
+    mini_d1: 'The model learned conditional probabilities P(next_char | prev_chars).',
+    mini_ctx: 'Context length', mini_temp: 'Temperature', mini_len: 'Length',
+    mini_status: 'Model Status', mini_corpus: 'Training corpus', mini_vocab: 'Unique chars', mini_patterns: 'N-grams',
+    mini_run: 'Generate', mini_random: 'Surprise me', mini_out: 'Output:',
+    tut_title: '💬 AI Tutor — Ask Anything About LLMs',
+    tut_intro: 'A rule-based tutor with curated answers to common LLM questions.',
+    tut_welcome: 'Hi! I\'m the LLM Atlas tutor. Ask me about transformers, attention, training, sampling. Try: "What is attention?" or "How does RLHF work?"',
+    tut_send: 'Send', tut_suggest: '💡 Try one of these:',
+    q1: 'What is attention?', q2: 'How does RLHF work?', q3: 'What is tokenization?',
+    q4: 'Why scale by sqrt(d_k)?', q5: 'What is RoPE?', q6: 'How do LLMs work?',
+    q7: 'What is DPO?', q8: 'Explain Mamba',
+    quiz_title: '🧪 Knowledge Check — 50 Questions',
+    quiz_next: 'Next', quiz_correct: 'Correct answers out of 50',
+    quiz_restart: 'Restart', quiz_dash: 'Back to Dashboard',
+    gl_title: '📚 Glossary — 40+ Key Terms',
+    ref_title: '📖 References & Further Reading',
+    ref_footer: 'Made with ❤️ for everyone learning about LLMs. Built entirely in vanilla HTML/CSS/JS.'
+  },
+  zh: {
+    hero_title: '<span>LLM 图谱</span> — 大语言模型的交互式之旅',
+    hero_sub: '从你的第一个 token 到真实的注意力计算——每个概念都可交互,每个公式都实时,每个步骤都有两遍解释(大白话 + 数学)。零后端,纯浏览器魔法。',
+    stat_modules: '交互模块', stat_quiz: '测验题目', stat_glossary: '术语词条',
+    stat_use: '重看价值', stat_deps: '依赖',
+    mode_label: '入门', nav_dashboard: '仪表盘', nav_overview: '概览', nav_token: '分词',
+    nav_emb: '嵌入', nav_attn: '注意力', nav_pe: '位置编码', nav_ffn: '前馈网络',
+    nav_gen: '生成演示', nav_sample: '采样', nav_arch: '架构对比', nav_moe: 'MoE',
+    nav_ctx: '长上下文', nav_train: '训练', nav_rlhf: 'RLHF', nav_minilm: '迷你大模型',
+    nav_tutor: 'AI 导师', nav_quiz: '测验', nav_glossary: '术语表', nav_refs: '参考文献',
+    dash_title: '📊 学习仪表盘', dash_sub: '欢迎回来,看看你走到哪了。',
+    dash_level: '等级进度', dash_curator: '好奇新手',
+    dash_modules: '已学模块', dash_explore: '继续探索解锁更多',
+    dash_quiz_score: '最佳成绩', dash_quiz_sub: '共 50 题',
+    dash_attempts: '挑战次数:', dash_achievements: '成就',
+    dash_ach_sub: '通过探索模块、计算注意力、答对测验来解锁成就。',
+    dash_path: '推荐学习路径', dash_path_sub: '不知道从哪开始?跟着这个定制路线走:',
+    path1_title: '概览', path1_desc: '什么是 LLM?2 分钟看完整个流程。',
+    path2_title: '分词', path2_desc: '输入任意文本,看 BPE 把它切成 token。',
+    path3_title: '嵌入', path3_desc: '看看 token 怎么变成有语义的向量。',
+    path4_title: '注意力(含猫鼠案例)', path4_desc: '重头戏。手算真实注意力分数。',
+    path5_title: '生成', path5_desc: '看 LLM 一个个 token 地生成文本。魔法时刻。',
+    path6_title: '测验', path6_desc: '考考你学到的东西。',
+    dash_start: '开始旅程 →', dash_tutor: '问问 AI 导师',
+    dash_why: '为什么是这个网站?', dash_why_text: '大多数 LLM 教程要么把你淹在公式里,要么糊弄数学。这个网站两者兼顾——每个概念都有大白话解释(切到入门模式),也有真正的数学(切到专家模式)。鼠标悬停看上下文,输入任意句子看它变形。',
+    dash_loved: '同学们最喜欢:', love1: '实时注意力数学("猫鼠"手算案例)', love2: '逐 token 生成可视化', love3: '双语标签和解释', love4: '经验值、徽章、进度跟踪', love5: '实时概率分布采样器',
+    dash_new: '本版新增:', new1: '入门 ↔ 专家模式(重新解释每个概念)', new2: '内嵌真正能生成文本的迷你大模型', new3: 'MoE(混合专家)路由器可视化', new4: '"迷失在中间"长上下文实验', new5: '带精选答案的 AI 导师',
+    ov_title: '🗺️ 什么是 LLM?', ov_intro: '大语言模型是一个函数:输入一串 token(数字),输出下一个 token 的概率分布。在足够多的文本上训练,它就成了 ChatGPT、Claude、Gemini 背后的技术。',
+    ov_pipeline: '完整流程', ov_pipe_sub: '点任何步骤看具体发生了什么(以及背后的数学)。',
+    ov_s1: '原始文本', ov_s2: '分词', ov_s3: '嵌入', ov_s4: '位置编码', ov_s5: 'Transformer 块', ov_s6: '最终归一化', ov_s7: 'Logits → 采样',
+    ov_tok: '分词', ov_tok_d: '通过 BPE(字节对编码)把原始文本变成整数 ID。',
+    ov_attn: '自注意力', ov_attn_d: '每个 token 计算 Q、K、V 向量,关注其他所有 token。',
+    ov_ffn: '前馈网络', ov_ffn_d: '独立作用于每个 token 的两层 MLP。存了大部分"知识"。',
+    tok_title: '🔤 分词——从文本到数字',
+    tok_lab: '交互式 BPE 沙盒', tok_lab_d: '输入任何文本,看 BPE 分词实时工作。',
+    tok_run: '分词', tok_how: 'BPE 怎么工作',
+    tok_s1_t: '从字符开始', tok_s2_t: '统计相邻对', tok_s3_t: '合并最高频', tok_s4_t: '重复到目标词表大小',
+    tok_vocab: '词表对比', tok_model: '模型', tok_size: '词表',
+    tok_bpe_viz: 'BPE 合并可视化', tok_bpe_viz_d: '点击看 "unbelievable" 的 BPE 合并步骤。',
+    tok_run_bpe: '在 "unbelievable" 上跑 BPE',
+    emb_title: '📐 Token 嵌入——词变成向量',
+    emb_intro: '每个 token ID 通过查找表 E ∈ ℝ^(V×d) 映射到一个学习到的 d 维向量。',
+    emb_show: '可视化', emb_2d: '二维嵌入图', emb_2d_d: '语义相近的词在向量空间里也近。',
+    emb_dims: '嵌入维度', emb_emb_params: '嵌入参数量',
+    attn_title: '🧠 自注意力——魔法发生的地方',
+    attn_live: '实时自注意力计算', attn_live_d: '输入一句话,看完整的注意力计算用真实数字发生。',
+    attn_compute: '计算', attn_heat: '注意力热图', attn_heat_d: '越亮 = 注意力越强。悬停看具体数值。',
+    attn_qk: 'Q · K 点积(缩放后)', attn_steps: '逐步推导',
+    attn_cat: '🐱 猫鼠:经典手算案例', attn_cat_d: '我们手算 "The cat chases the mouse" 的注意力分数——每一步都有明确的数字。',
+    attn_run_cat: '运行猫鼠案例', attn_mha: '多头注意力', attn_mha_d: '并行运行 h 个注意力头。',
+    attn_causal: '因果(掩码)注意力', attn_causal_d: 'Decoder-only 模型遮住未来 token。',
+    attn_cross: '交叉注意力', attn_cross_d: 'Encoder-decoder 模型:Q 来自 decoder,K 和 V 来自 encoder。',
+    pe_title: '📈 位置编码——顺序很重要',
+    pe_intro: 'Transformer 本身没有顺序概念。',
+    pe_seqlen: '序列长度', pe_dmodel: 'd_model', pe_hover: '悬停任意单元格看具体数值。',
+    pe_sin: '正弦(原始)', pe_sin_d: '固定。无参数。长度外推差。',
+    pe_rope: 'RoPE ⭐', pe_rope_d: 'LLaMA、Mistral、GPT-NeoX 在用。',
+    pe_alibi: 'ALiBi', pe_alibi_d: 'BLOOM、MPT 在用。外推极佳。',
+    ffn_title: '⚡ 前馈网络——知识住在哪',
+    ffn_intro: '注意力混合了跨 token 的信息后,FFN 独立处理每个 token。它占了大约 2/3 的参数——"事实"都存在这。',
+    ffn_t1: 'ReLU(原始)', ffn_t2: 'GLU 变体', ffn_t3: 'SwiGLU(现代)', ffn_t4: '参数分布',
+    ffn_relu_t: '标准 ReLU FFN', ffn_swi_t: 'SwiGLU——现代默认',
+    ffn_swi_d: 'LLaMA、PaLM、Mistral 在用。同参数下比 ReLU 高 0.5–1%。',
+    ffn_perf: '效果', ffn_param_t: '参数都去哪了?',
+    gen_title: '🎬 看 LLM 思考——逐 token',
+    gen_intro: '输入提示词,看一个真实的(微型)语言模型一个 token 一个 token 地生成文本。',
+    gen_lab: '实时生成沙盒', gen_run: '生成', gen_stop: '重置',
+    gen_warn: '⚡ 这是一个真实的字符级语言模型,在你浏览器里运行。它不是 ChatGPT——它是个教学玩具。',
+    gen_output: '生成的文本:', gen_dist: '下一 token 概率分布:',
+    samp_title: '🎲 采样游乐场', samp_intro: '所有概率都在你浏览器里用真正的 softmax 计算。',
+    samp_table: '解码策略对比', samp_best: '最适合',
+    arch_title: '🏗️ Transformer 架构对比',
+    arch_enc_d: '擅长:分类、NER、抽取式问答。',
+    arch_dec_d: '擅长:生成、对话、补全。',
+    arch_comp: '关键模型对比', arch_flash: 'Flash Attention——IO 革命',
+    arch_flash_d: '标准注意力是 O(n²) 内存。Flash Attention 用相同的数学做到 O(n)。',
+    moe_title: '🌳 混合专家——稀疏路由',
+    moe_intro: 'MoE 在不增加 FLOPs 的前提下扩展参数。每个 token 只路由到几个"专家"FFN 层。',
+    moe_router: '交互式 MoE 路由器', moe_router_d: '8 个专家,top-2 路由(每个 token 只激活 2 个)。',
+    moe_run: '路由 Token', moe_math: '路由数学', moe_math_d: 'Mixtral 8×7B:总参 470 亿,每个 token 只激活约 130 亿。',
+    ctx_title: '📜 长上下文——"迷失在中间"实验',
+    ctx_intro: 'LLM 在长上下文的开头和结尾关注得好,但中间的信息处理得很差。',
+    ctx_exp: '实验', ctx_exp_d: '下面是一段藏着"针"的话。我们的模拟 LLM 试着找它。',
+    ctx_pos: '针的位置', ctx_run: '运行检索', ctx_curve: 'U 形曲线:头尾准确率高,中间凹下去。(Liu et al., 2023)',
+    train_title: '🏋️ 训练流水线——从原始数据到对齐模型',
+    train_s1: '阶段 1:预训练', train_s1_d: '在数万亿 token 上做下一 token 预测。',
+    train_s2: '阶段 2:监督微调(SFT)', train_s2_d: '精选样本教模型遵循指令。',
+    train_s3: '阶段 3:对齐(RLHF / DPO)', train_s3_d: '看 RLHF 模拟器交互式走一遍。',
+    train_scale: '缩放定律(Chinchilla)', train_scale_d: 'LLaMA 证明小模型 + 更多 token 可以打败大模型。',
+    rlhf_title: '🎯 RLHF——交互模拟器',
+    rlhf_s1: '步骤 1:收集人类偏好', rlhf_s1_d: '你是人类。选哪个回答更好。',
+    rlhf_next: '下一对', rlhf_reset: '重置',
+    rlhf_s2: '步骤 2:训练奖励模型', rlhf_s2_d: '奖励模型学习预测人类偏好。',
+    rlhf_s3: '步骤 3:策略优化',
+    mini_title: '🤖 迷你大模型——浏览器里跑的真模型',
+    mini_intro: '这不是模拟。这是一个真的字符级语言模型,虽然很小。',
+    mini_lab: '迷你大模型沙盒',
+    mini_d1: '模型学会了条件概率 P(next_char | prev_chars)。',
+    mini_ctx: '上下文长度', mini_temp: '温度', mini_len: '长度',
+    mini_status: '模型状态', mini_corpus: '训练语料', mini_vocab: '唯一字符', mini_patterns: 'N-gram 数',
+    mini_run: '生成', mini_random: '随机一下', mini_out: '输出:',
+    tut_title: '💬 AI 导师——问任何关于 LLM 的问题',
+    tut_intro: '基于规则的导师,带常见 LLM 问题的精选答案。',
+    tut_welcome: '你好!我是 LLM 图谱的导师。问我 transformer、注意力、训练、采样,或者本站的任何概念。试试:"注意力是什么?"或者 "RLHF 怎么工作?"',
+    tut_send: '发送', tut_suggest: '💡 试试这些:',
+    q1: '注意力是什么?', q2: 'RLHF 怎么工作?', q3: '什么是分词?',
+    q4: '为什么除以 √d_k?', q5: '什么是 RoPE?', q6: 'LLM 是怎么工作的?',
+    q7: '什么是 DPO?', q8: '解释一下 Mamba',
+    quiz_title: '🧪 知识检验——50 题',
+    quiz_next: '下一题', quiz_correct: '50 题里答对的',
+    quiz_restart: '重新开始', quiz_dash: '回仪表盘',
+    gl_title: '📚 术语表——40+ 关键术语',
+    ref_title: '📖 参考文献与延伸阅读',
+    ref_footer: '用 ❤️ 制作,献给所有学 LLM 的人。纯 HTML/CSS/JS,无框架,无构建步骤,无后端。'
+  }
+};
+
+let currentLang = localStorage.getItem('llm_atlas_lang') || 'en';
+let currentMode = localStorage.getItem('llm_atlas_mode') || 'beginner';
+
+function setLang(lang){
+  currentLang = lang;
+  localStorage.setItem('llm_atlas_lang', lang);
+  document.documentElement.lang = lang;
+  document.documentElement.setAttribute('data-lang', lang);
+  document.getElementById('lang-en').classList.toggle('active', lang==='en');
+  document.getElementById('lang-zh').classList.toggle('active', lang==='zh');
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key = el.getAttribute('data-i18n');
+    if(I18N[lang][key]) el.innerHTML = I18N[lang][key];
+  });
+  // Re-render dynamic parts
+  if(document.getElementById('glossary-list').children.length>0) renderGlossary();
+  if(currentMode==='expert') applyExpertMode();
+}
+
+function toggleMode(){
+  currentMode = currentMode==='beginner' ? 'expert' : 'beginner';
+  localStorage.setItem('llm_atlas_mode', currentMode);
+  applyMode();
+}
+
+function applyMode(){
+  const btn = document.getElementById('mode-toggle');
+  if(currentMode==='expert'){
+    btn.innerHTML = '🧪 ' + (currentLang==='zh'?'专家':'Expert');
+    btn.classList.add('active');
+    applyExpertMode();
+  } else {
+    btn.innerHTML = '🎓 ' + I18N[currentLang].mode_label;
+    btn.classList.remove('active');
+    removeExpertMode();
+  }
+  updateDashboard();
+}
+
+function applyExpertMode(){
+  // Add extra detail panels
+  if(!document.getElementById('expert-addendum')){
+    const div = document.createElement('div');
+    div.id = 'expert-addendum';
+    div.className = 'card';
+    div.style.border = '1px solid var(--accent4)';
+    div.style.background = 'rgba(168,85,247,0.04)';
+    div.innerHTML = `
+      <h3 style="color:var(--accent4);">🧪 Expert Addendum</h3>
+      <p>You\'re in Expert mode. Every formula above is implemented in real JavaScript. Open DevTools and inspect the <code>window.LLMAtlas</code> object to play with the underlying math directly:</p>
+      <pre>// Try in DevTools console:
+LLMAtlas.attention(['the','cat','sat']);
+LLMAtlas.softmax([1,2,3,4]);
+LLMAtlas.sample([0.1,0.6,0.2,0.1], 0.8);</pre>
+    `;
+    const dash = document.getElementById('dashboard');
+    dash.appendChild(div);
+  }
+}
+
+function removeExpertMode(){
+  const el = document.getElementById('expert-addendum');
+  if(el) el.remove();
+}
+
+/* ========== XP & ACHIEVEMENTS ========== */
+const state = {
+  xp: parseInt(localStorage.getItem('llm_atlas_xp')||'0'),
+  visited: JSON.parse(localStorage.getItem('llm_atlas_visited')||'["dashboard"]'),
+  achievements: JSON.parse(localStorage.getItem('llm_atlas_achv')||'[]'),
+  quizBest: parseInt(localStorage.getItem('llm_atlas_quiz')||'0'),
+  quizAttempts: parseInt(localStorage.getItem('llm_atlas_attempts')||'0'),
+  mode: currentMode,
+  lang: currentLang
+};
+
+const ACHIEVEMENTS = [
+  {id:'first_step', icon:'👣', name:'First Step', desc:'Visit 3 modules', req:()=>state.visited.length>=3, xp:20},
+  {id:'explorer', icon:'🧭', name:'Explorer', desc:'Visit 8 modules', req:()=>state.visited.length>=8, xp:50},
+  {id:'completionist', icon:'🏆', name:'Completionist', desc:'Visit all modules', req:()=>state.visited.length>=17, xp:200},
+  {id:'attention_seeker', icon:'🧠', name:'Attention Seeker', desc:'Compute attention', req:()=>state.visited.includes('attention'), xp:30},
+  {id:'cat_mouse', icon:'🐭', name:'Cat & Mouse', desc:'Run the cat example', req:()=>state.achievements.includes('cat_mouse_done'), xp:40},
+  {id:'generator', icon:'🎬', name:'Generator', desc:'Generate text', req:()=>state.achievements.includes('generated'), xp:30},
+  {id:'mini_master', icon:'🤖', name:'Mini Master', desc:'Use the Mini-LLM', req:()=>state.achievements.includes('mini_used'), xp:50},
+  {id:'moe_master', icon:'🌳', name:'MoE Master', desc:'Route tokens in MoE', req:()=>state.achievements.includes('moe_done'), xp:40},
+  {id:'quiz_starter', icon:'📝', name:'Quiz Starter', desc:'Attempt the quiz', req:()=>state.quizAttempts>=1, xp:20},
+  {id:'quiz_ace', icon:'🎯', name:'Quiz Ace', desc:'Score 80%+ on quiz', req:()=>state.quizBest>=40, xp:100},
+  {id:'perfect', icon:'💯', name:'Perfect', desc:'Score 100% on quiz', req:()=>state.quizBest>=50, xp:300},
+  {id:'polyglot', icon:'🌐', name:'Polyglot', desc:'Switch language', req:()=>currentLang!=='en'||localStorage.getItem('llm_atlas_polyglot')==='1', xp:30}
+];
+
+function awardAchievement(id){
+  if(state.achievements.includes(id)) return;
+  state.achievements.push(id);
+  const a = ACHIEVEMENTS.find(x=>x.id===id);
+  if(a){
+    state.xp += a.xp;
+    toast(`🏅 Achievement: ${a.name} (+${a.xp} XP)`);
+  }
+  saveState();
+  renderAchievements();
+  updateDashboard();
+}
+
+function saveState(){
+  localStorage.setItem('llm_atlas_xp', state.xp);
+  localStorage.setItem('llm_atlas_visited', JSON.stringify(state.visited));
+  localStorage.setItem('llm_atlas_achv', JSON.stringify(state.achievements));
+  localStorage.setItem('llm_atlas_quiz', state.quizBest);
+  localStorage.setItem('llm_atlas_attempts', state.quizAttempts);
+}
+
+function toast(msg){
+  const t = document.createElement('div');
+  t.style.cssText='position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--accent);padding:12px 22px;border-radius:10px;z-index:500;font-weight:600;color:var(--accent);box-shadow:var(--shadow);animation:slideUp .4s ease;';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(()=>t.remove(),300);},2500);
+}
+
+function xpForLevel(lv){return lv*100;}
+
+function updateDashboard(){
+  const totalXP = state.xp;
+  let level = Math.floor(totalXP/100)+1;
+  const cur = totalXP - (level-1)*100;
+  const next = 100;
+  document.getElementById('level-badge').textContent = 'Lv ' + level;
+  document.getElementById('xp-fill').style.width = (cur/next*100)+'%';
+  document.getElementById('xp-text').textContent = cur+'/'+next+' XP';
+  document.getElementById('achv-count').textContent = state.achievements.length;
+  document.getElementById('achv-total').textContent = ACHIEVEMENTS.length;
+  document.getElementById('dash-level').textContent = 'Lv ' + level;
+  document.getElementById('dash-level-fill').style.width = (cur/next*100)+'%';
+  document.getElementById('dash-xp').textContent = totalXP;
+  document.getElementById('dash-next').textContent = next-cur;
+  document.getElementById('dash-visited').textContent = state.visited.length;
+  document.getElementById('dash-visited-fill').style.width = (state.visited.length/17*100)+'%';
+  document.getElementById('dash-best').textContent = state.quizBest || '—';
+  document.getElementById('dash-attempts').textContent = state.quizAttempts;
+  const titles = ['','Curious Newcomer','Pattern Spotter','Attention Apprentice','Transformer Initiate','Embedding Explorer','Probability Pilot','RLHF Ranger','Architecture Adept','Generation Guru','LLM Sage','Atlas Master'];
+  document.getElementById('dash-level').nextElementSibling.textContent = titles[Math.min(level, titles.length-1)] || titles[titles.length-1];
+  if(state.visited.length>=3) awardAchievement('first_step');
+  if(state.visited.length>=8) awardAchievement('explorer');
+  if(state.visited.length>=17) awardAchievement('completionist');
+}
+
+function renderAchievements(){
+  const grid = document.getElementById('achv-grid');
+  grid.innerHTML = ACHIEVEMENTS.map(a=>{
+    const unlocked = state.achievements.includes(a.id);
+    return `<div class="achv ${unlocked?'':'locked'}">
+      <div class="achv-icon">${a.icon}</div>
+      <div class="achv-name">${a.name}</div>
+      <div class="achv-desc">${a.desc}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ========== NAVIGATION ========== */
+const sections = ['dashboard','overview','tokenization','embeddings','attention','posenc','ffn','generate','sampling','arch','moe','longctx','training','rlhf','minilm','tutor','quiz','glossary','refs'];
+
+function show(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach((b,i)=>{
+    b.classList.remove('active','completed');
+    if(sections.indexOf(id)===i) b.classList.add('active');
+  });
+  document.getElementById(id).classList.add('active');
+  if(!state.visited.includes(id)){state.visited.push(id);saveState();}
+  // Award XP for visiting
+  if(id!=='dashboard') state.xp += 5;
+  saveState();
+  updateDashboard();
+  // Mark visited modules
+  document.querySelectorAll('nav button').forEach((b,i)=>{
+    if(state.visited.includes(sections[i])) b.classList.add('completed');
+  });
+  // Progress bar
+  const pct = (state.visited.length/sections.length)*100;
+  document.getElementById('global-progress-fill').style.width = pct+'%';
+  // Lazy init
+  if(id==='attention'){computeAttention();}
+  if(id==='posenc'){drawPE();}
+  if(id==='sampling'){updateSampling();}
+  if(id==='tokenization'){tokenizeInput();}
+  if(id==='embeddings'){showEmbeddings();drawEmbMap();}
+  if(id==='generate'){initGen();}
+  if(id==='moe'){}
+  if(id==='longctx'){updateCtx();}
+  if(id==='glossary'){renderGlossary();}
+  if(id==='rlhf'){initRLHF();}
+  if(id==='minilm'){initMini();}
+  if(id==='quiz'){renderQ();}
+  if(id==='dashboard'){renderAchievements();}
+  if(id==='tutor'){}
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ========== TOOLTIP ========== */
+const tooltipEl = document.getElementById('tooltip');
+
+/* ========== MATH HELPERS ========== */
+function softmax(arr){
+  const m=Math.max(...arr);
+  const e=arr.map(x=>Math.exp(x-m));
+  const s=e.reduce((a,b)=>a+b,0);
+  return e.map(x=>x/s);
+}
+function dot(a,b){return a.reduce((s,v,i)=>s+v*b[i],0);}
+function sampleFromProbs(probs, temp=1.0){
+  const scaled = probs.map(p=>Math.pow(p, 1/temp));
+  const total = scaled.reduce((a,b)=>a+b,0);
+  const norm = scaled.map(p=>p/total);
+  const r = Math.random();
+  let cum = 0;
+  for(let i=0;i<norm.length;i++){cum+=norm[i];if(r<cum)return i;}
+  return norm.length-1;
+}
+function rng(seed){
+  let s = seed;
+  return ()=>{s=(s*9301+49297)%233280;return s/233280;};
+}
+function vec(seed, d){
+  const r = rng(seed);
+  return Array.from({length:d},()=>+(r()*2-1).toFixed(3));
+}
+
+// Expose for Expert mode console
+window.LLMAtlas = {
+  attention(sentence){
+    const words = sentence.split(/\s+/).slice(0,8);
+    const n=words.length, d=4;
+    const Q = words.map((_,i)=>vec(i*7+1, d));
+    const K = words.map((_,i)=>vec(i*7+3, d));
+    const scores = Q.map((q,i)=>K.map((k,j)=>+(dot(q,k)/Math.sqrt(d)).toFixed(4)));
+    const weights = scores.map(row=>softmax(row));
+    return {words, scores, weights};
+  },
+  softmax, dot, sampleFromProbs,
+  generate: (prompt='', len=50, temp=0.8, ctx=3)=>miniLLM.generate(prompt, len, temp, ctx)
+};
+
+/* ========== OVERVIEW ========== */
+const overviewData = [
+  {title:'① Raw Text Input', body:`
+    <p>Text enters as a string of characters. Before any computation, we need to convert it into numbers.</p>
+    <div class="formula">Input: "The cat sat on the mat"
+Raw bytes: [84, 104, 101, 32, 99, 97, 116, ...]
+Character count: 22
+→ Must be converted to tokens first</div>`},
+  {title:'② Tokenization', body:`
+    <p>BPE splits text into subword tokens and maps each to an integer ID from the vocabulary.</p>
+    <div class="formula blue">"The cat sat on the mat"
+→ ["The", "Ġcat", "Ġsat", "Ġon", "Ġthe", "Ġmat"]
+→ [464, 3797, 3332, 262, 262, 2614]
+Vocab: 50,257 (GPT-2) | 128,256 (LLaMA-3)</div>`},
+  {title:'③ Token Embedding', body:`
+    <p>Each token ID is looked up in the embedding matrix E ∈ ℝ^(V×d) to produce a dense vector.</p>
+    <div class="formula">token_id = 3797 → E[3797] = [0.12, -0.43, 0.87, ...]
+E ∈ ℝ^(50257 × 768) → 38.6M parameters
+→ Captures semantic similarity in vector space</div>`},
+  {title:'④ + Positional Encoding', body:`
+    <p>Adds position information since Transformers are permutation-invariant by default.</p>
+    <div class="formula purple">x̃_pos = E[token_id] + PE(pos)
+PE(pos, 2i)   = sin(pos / 10000^(2i/d))
+PE(pos, 2i+1) = cos(pos / 10000^(2i/d))
+RoPE: rotates Q,K vectors for relative position</div>`},
+  {title:'⑤ N × Transformer Blocks', body:`
+    <p>Each block contains Multi-Head Attention + Feed-Forward Network with residuals and LayerNorm.</p>
+    <div class="formula">For each layer l = 1..N:
+  h' = h + Attention(LN(h))
+  h  = h' + FFN(LN(h'))
+GPT-3: N=96 layers, d_model=12288</div>`},
+  {title:'⑥ Final Layer Norm', body:`
+    <p>Normalizes the final hidden state before projecting to vocabulary.</p>
+    <div class="formula blue">h_final = LayerNorm(h_N)
+h_final ∈ ℝ^d_model
+→ Stabilizes output distribution</div>`},
+  {title:'⑦ Logits → Sample → Next Token', body:`
+    <p>Projects to vocabulary logits and applies softmax to get probabilities.</p>
+    <div class="formula">logits = h_final · Eᵀ ∈ ℝ^V (weight-tied)
+P(token) = softmax(logits / τ)
+τ = temperature (0.1 → 3.0)
+→ Sample or argmax for next token</div>`}
+];
+
+function overviewSelect(i){
+  document.querySelectorAll('.pipeline-step').forEach((s,j)=>s.classList.toggle('active',j===i));
+  document.getElementById('overview-content').innerHTML = `<h3>${overviewData[i].title}</h3>${overviewData[i].body}`;
+}
+overviewSelect(0);
+
+/* ========== TOKENIZATION ========== */
+const VOCAB = {
+  'the':262,'Ġthe':262,'a':257,'Ġa':257,'Ġcat':3797,'cat':48503,'Ġsat':3332,'sat':48432,
+  'on':262,'Ġon':265,'Ġmat':2614,'mat':48214,'is':318,'Ġis':318,'was':373,'Ġwas':373,
+  'and':290,'Ġand':290,'to':284,'Ġto':284,'of':286,'Ġof':286,'in':257,'Ġin':260,
+  'The':464,'ĠThe':464,'for':337,'Ġfor':337,'it':340,'Ġit':340,'with':351,'Ġwith':351,
+  'not':449,'Ġnot':449,'you':262,'chases':37945,'chase':37160,'mouse':17586,'dog':10472,
+  'happy':61743,'quick':10811,'brown':10223,'lazy':34284,'jumped':44867,'over':1167,
+  'J':38,'I':40,'we':283,'be':287,'my':285,'do':262,'at':264,'no':297,
+  'if':289,'up':287,'by':287,'or':292,'as':287,'an':264,
+  'revolution':37198,'revolutionized':37198,'natural':3634,'language':5847,'processing':8201,
+  'transformer':4321,'Transform':4321,'Ġtransform':4321
+};
+
+function simpleBPE(text){
+  const words = text.split(/(\s+)/);
+  const result = [];
+  let idCounter = 10000;
+  words.forEach(w => {
+    if(w.match(/^\s+$/) && w.trim()){
+      const key = 'Ġ'+w.trim();
+      result.push({token:key, id: VOCAB[key] || (idCounter++)});
+    } else if(w.length > 0){
+      const key2 = w;
+      if(VOCAB[key2] !== undefined) result.push({token:key2, id:VOCAB[key2]});
+      else result.push({token:w, id: idCounter++});
+    }
+  });
+  return result;
+}
+
+function tokenizeInput(){
+  const text = document.getElementById('tok-input').value.trim();
+  if(!text) return;
+  const tokens = simpleBPE(text);
+  let html = '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">';
+  tokens.forEach((t,i)=>{
+    const colors = ['#60a5fa','#22c55e','#a855f7','#f97316','#ec4899','#eab308'];
+    const c = colors[i % colors.length];
+    html += `<div class="token-chip" style="background:${c}22;border:1px solid ${c}44;color:${c};">`;
+    html += `<span>${t.token}</span><span style="opacity:.6;font-size:10px;">ID:${t.id}</span></div>`;
+  });
+  html += '</div>';
+  html += `<table><tr><th>Token</th><th>Token ID</th><th>Position</th><th>Byte Length</th></tr>`;
+  tokens.forEach((t,i)=>{
+    html += `<tr><td><code>${t.token}</code></td><td>${t.id}</td><td>${i}</td><td>${t.token.length}</td></tr>`;
+  });
+  html += '</table>';
+  html += `<div style="margin-top:12px;font-size:13px;color:var(--text3);">${text.length} chars → ${tokens.length} tokens (compression: ${(text.length/tokens.length).toFixed(2)}x)</div>`;
+  document.getElementById('tok-output').innerHTML = html;
+  state.xp += 10;
+  saveState();
+  updateDashboard();
+}
+
+function runBPEViz(){
+  const text = 'unbelievable';
+  const merges = [['e','v'],['un','believable'],['unb','elievable'],['unbe','lievable']];
+  let tokens = text.split('');
+  const steps = [{step:0, tokens:[...tokens], merge:'—'}];
+  merges.forEach((m,i)=>{
+    const newTokens = [];
+    let j=0;
+    while(j<tokens.length){
+      if(j<tokens.length-1 && tokens[j]+tokens[j+1]===m.join('')){
+        newTokens.push(m.join(''));
+        j+=2;
+      } else if(j<tokens.length-1 && tokens[j]===m[0] && tokens[j+1]===m[1]){
+        newTokens.push(m[0]+m[1]);
+        j+=2;
+      } else {
+        newTokens.push(tokens[j]);
+        j++;
+      }
+    }
+    tokens = newTokens;
+    steps.push({step:i+1, tokens:[...tokens], merge:`"${m[0]}"+"${m[1]}" → "${m.join('')}"`});
+  });
+  let html = '';
+  steps.forEach(s=>{
+    html += `<div style="margin:8px 0;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">`;
+    html += `<span style="min-width:60px;font-size:12px;color:var(--text3);">Step ${s.step}:</span>`;
+    s.tokens.forEach(t=>{
+      const colors = ['#60a5fa','#22c55e','#a855f7','#f97316','#ec4899','#eab308','#ef4444'];
+      const c = colors[s.step % colors.length];
+      html += `<span class="token-chip" style="background:${c}22;border:1px solid ${c}44;color:${c};font-family:monospace;">${t}</span>`;
+    });
+    html += `<span style="font-size:11px;color:var(--text3);margin-left:auto;">merge: ${s.merge}</span>`;
+    html += `</div>`;
+  });
+  html += `<div style="margin-top:10px;font-size:13px;color:var(--accent3);">Final: ${tokens.length} tokens | Compression: ${(text.length/tokens.length).toFixed(1)}x</div>`;
+  document.getElementById('bpe-viz').innerHTML = html;
+}
+
+/* ========== EMBEDDINGS ========== */
+function showEmbeddings(){
+  const text = document.getElementById('emb-input').value.trim();
+  const words = text.split(/\s+/).slice(0,6);
+  const d = 8;
+  let html = '<div style="overflow-x:auto;"><table><tr><th>Token</th>';
+  for(let i=0;i<d;i++) html += `<th>dim_${i}</th>`;
+  html += '<th>Visualization</th></tr>';
+  words.forEach((w,i)=>{
+    const v = vec(w.length*7+i*13, d);
+    const maxAbs = Math.max(...v.map(Math.abs), 0.01);
+    html += `<tr><td><strong>${w}</strong></td>`;
+    v.forEach(val=>{
+      const color = val >= 0 ? `rgba(34,197,94,${Math.abs(val)/2})` : `rgba(239,68,68,${Math.abs(val)/2})`;
+      html += `<td style="color:${val>=0?'var(--accent3)':'var(--red)'};">${val.toFixed(3)}</td>`;
+    });
+    html += '<td><div style="display:flex;gap:1px;align-items:center;height:20px;">';
+    v.forEach(val=>{
+      const h = Math.abs(val)/maxAbs * 18;
+      const c = val >= 0 ? 'var(--accent3)' : 'var(--red)';
+      html += `<div style="width:12px;height:${Math.max(h,1)}px;background:${c};border-radius:2px;"></div>`;
+    });
+    html += '</div></td></tr>';
+  });
+  html += '</table></div>';
+  html += `<div style="margin-top:12px;font-size:12px;color:var(--text3);">Showing ${d} of ${d_model_dims()}+ dimensions</div>`;
+  document.getElementById('emb-output').innerHTML = html;
+  drawEmbMap();
+}
+
+function d_model_dims(){return 768;}
+
+function drawEmbMap(){
+  const canvas = document.getElementById('emb-canvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.fillStyle = '#0a0f1c';ctx.fillRect(0,0,W,H);
+  // Axes
+  ctx.strokeStyle='#293449';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(W/2,0);ctx.lineTo(W/2,H);ctx.moveTo(0,H/2);ctx.lineTo(W,H/2);ctx.stroke();
+  // Words at schematic positions
+  const text = document.getElementById('emb-input').value.trim();
+  const words = text.split(/\s+/).slice(0,8);
+  const positions = {
+    'cat':[-90,-50],'dog':[-70,30],'kitten':[-110,0],
+    'king':[80,-80],'queen':[100,-30],'royal':[110,20],
+    'happy':[-30,80],'sad':[-30,110],'joy':[-60,90],
+    'python':[60,90],'code':[80,110],'computer':[100,80],
+    'love':[-100,-110],'hate':[-110,-70],'feel':[-80,-90]
+  };
+  words.forEach(w=>{
+    const pos = positions[w] || [(Math.random()-0.5)*200,(Math.random()-0.5)*200];
+    const x = W/2+pos[0], y = H/2+pos[1];
+    ctx.fillStyle = '#60a5fa';
+    ctx.beginPath();ctx.arc(x,y,7,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#f1f5f9';ctx.font='13px sans-serif';
+    ctx.fillText(w, x+10, y+5);
+  });
+}
+
+/* ========== ATTENTION ========== */
+function computeAttention(){
+  const sentence = document.getElementById('attn-input').value.trim();
+  const words = sentence.split(/\s+/).slice(0,8);
+  const n = words.length, d = 4;
+  const Q = words.map((_,i)=>vec(i*7+1, d));
+  const K = words.map((_,i)=>vec(i*7+3, d));
+  const V = words.map((_,i)=>vec(i*7+5, d));
+  const scores = Q.map((q,i)=>K.map((k,j)=>+(dot(q,k)/Math.sqrt(d)).toFixed(4)));
+  const weights = scores.map(row=>softmax(row));
+
+  const grid = document.getElementById('attn-grid');
+  const cell = 44;
+  grid.style.gridTemplateColumns = `repeat(${n},${cell}px)`;
+  grid.innerHTML = '';
+  weights.forEach((row,i)=>row.forEach((w,j)=>{
+    const v = Math.round(w*255);
+    const div = document.createElement('div');
+    div.className = 'heatmap-cell';
+    div.style.cssText = `width:${cell}px;height:${cell}px;background:rgb(${Math.round(v*0.34)},${Math.round(v*0.65)},${v});color:${v>120?'#000':'#fff'};font-size:11px;`;
+    div.textContent = w.toFixed(2);
+    div.onmousemove = e=>{
+      tooltipEl.style.display='block';
+      tooltipEl.style.left=e.clientX+14+'px';
+      tooltipEl.style.top=e.clientY+14+'px';
+      tooltipEl.innerHTML=`<strong>${words[i]}</strong> → <strong>${words[j]}</strong><br>Weight: ${w.toFixed(4)}<br>Scaled score: ${scores[i][j]}`;
+    };
+    div.onmouseleave = ()=>tooltipEl.style.display='none';
+    grid.appendChild(div);
+  }));
+
+  document.getElementById('attn-words').innerHTML = '<span style="font-size:11px;color:var(--text3);margin-right:6px;">Rows (from):</span>' + words.map(w=>`<span class="tag tag-blue">${w}</span>`).join('');
+
+  let th='<tr><th>from \\ to</th>'+words.map(w=>`<th>${w}</th>`).join('')+'</tr>';
+  let rows=words.map((w,i)=>'<tr><td><strong>'+w+'</strong></td>'+weights[i].map(v=>`<td>${v.toFixed(3)}</td>`).join('')+'</tr>').join('');
+  document.getElementById('attn-scores-table').innerHTML=`<table>${th}${rows}</table>`;
+
+  document.getElementById('attn-formula').textContent=`Attention(Q,K,V) = softmax(QKᵀ/√${d})·V | n=${n} tokens, d_k=${d}`;
+
+  document.getElementById('attn-steps').innerHTML=`
+    <div class="step-row"><div class="step-num">1</div><div><strong>Q·Kᵀ</strong>: dot-product each query against all keys → n×n score matrix (${n}×${n})</div></div>
+    <div class="step-row"><div class="step-num">2</div><div><strong>Scale</strong>: divide by √d_k = √${d} = ${Math.sqrt(d).toFixed(3)} → prevents softmax saturation</div></div>
+    <div class="step-row"><div class="step-num">3</div><div><strong>Softmax</strong>: each row → probabilities (sum=1) → attention weights</div></div>
+    <div class="step-row"><div class="step-num">4</div><div><strong>Weighted sum of V</strong>: output[i] = Σⱼ weight[i][j] · V[j]</div></div>`;
+
+  let mhaHtml='<div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  for(let h=0;h<4;h++){
+    mhaHtml+=`<div class="card" style="flex:1;min-width:120px;padding:12px;"><div style="font-size:11px;font-weight:600;color:var(--accent4)">Head ${h+1}</div>
+    <div style="font-size:10px;color:var(--text3)">d_k=${d}<br>Focus: ${['syntax','semantics','coreference','position'][h]}</div></div>`;
+  }
+  mhaHtml+='</div>';
+  document.getElementById('mha-visual').innerHTML=mhaHtml;
+
+  state.xp += 15;
+  saveState();
+  updateDashboard();
+  awardAchievement('attention_seeker');
+}
+
+/* ========== CAT & MOUSE WORKED EXAMPLE ========== */
+function runCatMouse(){
+  state.achievements.push('cat_mouse_done');
+  saveState();
+  awardAchievement('cat_mouse');
+  state.xp += 50;
+  saveState();
+  updateDashboard();
+
+  const words = ['The','cat','chases','the','mouse'];
+  const n = words.length;
+  const d = 3; // simplified for clarity
+  // Fixed, hand-picked vectors so the example tells a clear story
+  const E = [
+    [0.2, 0.4, 0.1],   // The
+    [0.9, 0.1, 0.8],   // cat
+    [0.4, 0.7, 0.3],   // chases
+    [0.2, 0.4, 0.1],   // the
+    [0.3, 0.2, 0.9],   // mouse
+  ];
+  const Wq = [[0.5,0.2,0.1],[0.1,0.4,0.3],[0.2,0.1,0.6]];
+  const Wk = [[0.4,0.3,0.2],[0.2,0.5,0.1],[0.1,0.2,0.5]];
+  const Wv = [[0.3,0.5,0.2],[0.4,0.1,0.5],[0.2,0.3,0.4]];
+
+  function matMul(M, v){return M.map(row=>dot(row,v));}
+  function fmt(v){return '[' + v.map(x=>x.toFixed(2)).join(', ') + ']';}
+
+  const Q = E.map(e=>matMul(Wq,e));
+  const K = E.map(e=>matMul(Wk,e));
+  const V = E.map(e=>matMul(Wv,e));
+
+  // Compute scaled scores
+  const scale = Math.sqrt(d);
+  const raw = Q.map((q,i)=>K.map((k,j)=>dot(q,k)));
+  const scaled = raw.map(row=>row.map(x=>+(x/scale).toFixed(3)));
+  const weights = raw.map(row=>softmax(row.map(x=>x/scale)));
+
+  // Build output
+  let html = `
+    <div class="formula">Let's trace through "The cat chases the mouse" with d_model=3 and explicit numbers.
+
+Step 1: Embeddings (the input vectors):
+${words.map((w,i)=>`  ${w.padEnd(7)} → ${fmt(E[i])}`).join('\n')}
+
+Step 2: Project to Q, K, V using learned matrices:
+${words.map((w,i)=>`  ${w.padEnd(7)} Q: ${fmt(Q[i])}
+  ${w.padEnd(7)} K: ${fmt(K[i])}
+  ${w.padEnd(7)} V: ${fmt(V[i])}`).join('\n')}
+
+Step 3: Compute Q·Kᵀ for each pair (e.g., how much each token "looks at" every other):
+${words.map((w,i)=>{
+  const line = words.map((_,j)=>`${words[j].slice(0,4).padEnd(4)}=${raw[i][j].toFixed(2).padStart(5)}`).join(' ');
+  return `  ${w.padEnd(7)} ${line}`;
+}).join('\n')}
+
+Step 4: Scale by √d_k = √${d} = ${scale.toFixed(2)}:
+${scaled.map((row,i)=>`  ${words[i].padEnd(7)} ${row.map(x=>x.toFixed(2).padStart(5)).join(' ')}`).join('\n')}
+
+Step 5: Softmax (normalize each row to sum to 1):
+${weights.map((row,i)=>`  ${words[i].padEnd(7)} [${row.map(x=>x.toFixed(3)).join(', ')}]`).join('\n')}
+
+INTERPRETATION — Look at "chases" (index 2):
+  chases→The:    ${weights[2][0].toFixed(3)}  (subject attention)
+  chases→cat:    ${weights[2][1].toFixed(3)}  ⭐ strongest (who is doing the chasing)
+  chases→chases: ${weights[2][2].toFixed(3)}  (self)
+  chases→the:    ${weights[2][3].toFixed(3)}
+  chases→mouse:  ${weights[2][4].toFixed(3)}  ⭐ second (who is being chased)
+
+→ The model has learned that "chases" connects to "cat" (agent) and "mouse" (patient)!
+</div>
+
+<table>
+<tr><th>From \\ To</th>${words.map(w=>`<th>${w}</th>`).join('')}</tr>
+${weights.map((row,i)=>`<tr><td><strong>${words[i]}</strong></td>${row.map(w=>`<td style="color:${w>0.25?'var(--accent3)':'var(--text2)'};font-weight:${w>0.25?'700':'400'}">${w.toFixed(3)}</td>`).join('')}</tr>`).join('')}
+</table>
+
+<p style="margin-top:14px;font-size:13px;color:var(--accent3);font-weight:600;">🎉 This is attention. Each row tells you which other words the model is "looking at" when processing that word.</p>
+`;
+
+  document.getElementById('catmouse-output').innerHTML = html;
+}
+
+/* ========== POSITIONAL ENCODING ========== */
+function drawPE(){
+  const len=+document.getElementById('pe-len').value;
+  const dim=+document.getElementById('pe-dim').value;
+  document.getElementById('pe-len-val').textContent=len;
+  document.getElementById('pe-dim-val').textContent=dim;
+  const canvas=document.getElementById('pe-canvas');
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const cellW=W/dim, cellH=H/len;
+  for(let pos=0;pos<len;pos++){
+    for(let i=0;i<dim;i++){
+      const val=i%2===0?Math.sin(pos/Math.pow(10000,2*(i/2)/dim)):Math.cos(pos/Math.pow(10000,2*(Math.floor(i/2))/dim));
+      const v=Math.round((val+1)/2*255);
+      ctx.fillStyle=`rgb(0,${v},${v})`;
+      ctx.fillRect(i*cellW,pos*cellH,cellW-1,cellH-1);
+    }
+  }
+  canvas.onmousemove=e=>{
+    const rect=canvas.getBoundingClientRect();
+    const mx=e.clientX-rect.left, my=e.clientY-rect.top;
+    const pos=Math.floor(my/cellH), i=Math.floor(mx/cellW);
+    if(pos>=0&&pos<len&&i>=0&&i<dim){
+      const val=i%2===0?Math.sin(pos/Math.pow(10000,2*(i/2)/dim)):Math.cos(pos/Math.pow(10000,2*(Math.floor(i/2))/dim));
+      tooltipEl.style.display='block';
+      tooltipEl.style.left=e.clientX+14+'px';
+      tooltipEl.style.top=e.clientY+14+'px';
+      tooltipEl.innerHTML=`pos=${pos}, dim=${i}<br>PE = ${val.toFixed(4)}<br>${i%2===0?'sin':'cos'} encoding`;
+    }
+  };
+  canvas.onmouseleave=()=>tooltipEl.style.display='none';
+}
+
+/* ========== GENERATION SANDBOX ========== */
+const GEN_VOCAB = [' ','e','t','a','o','i','n','s','h','r','d','l','u','c','m','w','f','g','y','p','b','v','k','j','x','q','z',',','.','!','?','"','\'','1','2','3','4','5','6','7','8','9','0'];
+
+const GEN_CORPUS = `The transformer is a neural network architecture that has revolutionized natural language processing. It uses self-attention mechanisms to process input sequences in parallel, making it both faster and more effective than previous recurrent approaches. The key insight is that attention allows the model to weigh the importance of different parts of the input when generating each part of the output.
+
+Large language models like GPT are trained on massive amounts of text data using self-supervised learning. They learn to predict the next token in a sequence, and through this simple objective, they develop remarkable capabilities in language understanding, generation, and reasoning.
+
+The training process involves several stages. First, pre-training on a large corpus teaches the model general language patterns. Then supervised fine-tuning on curated examples helps it follow instructions. Finally, reinforcement learning from human feedback aligns the model with human preferences and values.
+
+Attention is the core mechanism that makes transformers work. It allows each token in a sequence to attend to all other tokens, capturing long-range dependencies that were difficult for previous architectures to model. Multi-head attention runs several attention operations in parallel, each focusing on different aspects of the input.
+
+The future of AI is bright, with new architectures and training methods being developed every year. Researchers are exploring ways to make models more efficient, more capable, and more aligned with human values. The goal is to create AI systems that are helpful, harmless, and honest.`;
+
+let genModel = null;
+
+function initGen(){
+  document.getElementById('gen-temp').addEventListener('input', e=>{
+    document.getElementById('gen-temp-val').textContent = e.target.value;
+  });
+  if(!genModel) trainGenModel();
+}
+
+function trainGenModel(){
+  // Build char-level bigram and trigram models
+  const text = GEN_CORPUS.toLowerCase();
+  genModel = {
+    unigram: {},
+    bigram: {},
+    trigram: {}
+  };
+  // unigram
+  for(const c of text){genModel.unigram[c]=(genModel.unigram[c]||0)+1;}
+  for(const k in genModel.unigram){genModel.unigram[k]/=text.length;}
+  // bigram
+  for(let i=0;i<text.length-1;i++){
+    const key = text[i];
+    const next = text[i+1];
+    if(!genModel.bigram[key]) genModel.bigram[key]={};
+    genModel.bigram[key][next]=(genModel.bigram[key][next]||0)+1;
+  }
+  // trigram
+  for(let i=0;i<text.length-2;i++){
+    const key = text[i]+text[i+1];
+    const next = text[i+2];
+    if(!genModel.trigram[key]) genModel.trigram[key]={};
+    genModel.trigram[key][next]=(genModel.trigram[key][next]||0)+1;
+  }
+  // Normalize
+  for(const k in genModel.bigram){
+    const total = Object.values(genModel.bigram[k]).reduce((a,b)=>a+b,0);
+    for(const c in genModel.bigram[k]) genModel.bigram[k][c]/=total;
+  }
+  for(const k in genModel.trigram){
+    const total = Object.values(genModel.trigram[k]).reduce((a,b)=>a+b,0);
+    for(const c in genModel.trigram[k]) genModel.trigram[k][c]/=total;
+  }
+}
+
+function generateChar(context, modelType){
+  const text = context.toLowerCase();
+  let dist;
+  if(modelType==='trigram' && text.length>=2){
+    const key = text.slice(-2);
+    dist = genModel.trigram[key] || {};
+  }
+  if((!dist || Object.keys(dist).length===0) && modelType!=='unigram'){
+    if(text.length>=1){
+      const key = text.slice(-1);
+      dist = genModel.bigram[key] || {};
+    }
+  }
+  if(!dist || Object.keys(dist).length===0){
+    dist = genModel.unigram;
+  }
+  const chars = Object.keys(dist);
+  const probs = chars.map(c=>dist[c]);
+  const temp = +document.getElementById('gen-temp').value;
+  const idx = sampleFromProbs(probs, temp);
+  return chars[idx];
+}
+
+let genInterval = null;
+function generateStream(){
+  if(genInterval){clearInterval(genInterval);genInterval=null;}
+  const prompt = document.getElementById('gen-prompt').value;
+  const modelType = document.getElementById('gen-model').value;
+  const stream = document.getElementById('gen-stream');
+  stream.innerHTML = '';
+  // Show prompt first
+  for(const c of prompt){stream.innerHTML += `<span class="gen-token">${c}</span>`;}
+  let ctx = prompt;
+  state.achievements.push('generated');
+  state.xp += 25;
+  saveState();
+  awardAchievement('generator');
+  updateDashboard();
+
+  genInterval = setInterval(()=>{
+    const next = generateChar(ctx, modelType);
+    const span = document.createElement('span');
+    span.className = 'gen-token cur';
+    span.textContent = next;
+    stream.appendChild(span);
+    stream.querySelectorAll('.cur').forEach(el=>{if(el!==span){el.classList.remove('cur');el.classList.add('last');}});
+    ctx += next;
+    // Update distribution display
+    updateGenDist(ctx, modelType);
+    if(ctx.length > prompt.length + 150){
+      clearInterval(genInterval);
+      genInterval = null;
+      span.classList.remove('cur');
+    }
+    stream.scrollLeft = stream.scrollWidth;
+  }, 60);
+}
+
+function updateGenDist(ctx, modelType){
+  const canvas = document.getElementById('gen-canvas');
+  const ctx2 = canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  ctx2.fillStyle='#0a0f1c';ctx2.fillRect(0,0,W,H);
+  const text = ctx.toLowerCase();
+  let dist;
+  if(modelType==='trigram' && text.length>=2){
+    const key = text.slice(-2);
+    dist = genModel.trigram[key] || genModel.bigram[text.slice(-1)] || genModel.unigram;
+  } else if(text.length>=1){
+    const key = text.slice(-1);
+    dist = genModel.bigram[key] || genModel.unigram;
+  } else {
+    dist = genModel.unigram;
+  }
+  const entries = Object.entries(dist).sort((a,b)=>b[1]-a[1]).slice(0,15);
+  const max = entries[0]?entries[0][1]:1;
+  const bw = (W-20)/entries.length - 2;
+  ctx2.fillStyle='#94a3b8';ctx2.font='10px monospace';ctx2.textAlign='center';
+  ctx2.fillText('Top 15 next-char probabilities (after: "'+text.slice(-5)+'")', W/2, 14);
+  entries.forEach(([c,p],i)=>{
+    const x = 10+i*(bw+2);
+    const bh = (p/max)*(H-50);
+    const hue = 200 - (i*8);
+    ctx2.fillStyle=`hsl(${hue},70%,55%)`;
+    ctx2.fillRect(x, H-30-bh, bw, bh);
+    ctx2.fillStyle='#f1f5f9';
+    ctx2.fillText(c===' '?'⎵':c, x+bw/2, H-14);
+    if(bh>20) ctx2.fillText((p*100).toFixed(0)+'%', x+bw/2, H-32-bh);
+  });
+}
+
+function resetGen(){
+  if(genInterval){clearInterval(genInterval);genInterval=null;}
+  document.getElementById('gen-stream').innerHTML = '';
+  const canvas=document.getElementById('gen-canvas');
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#0a0f1c';ctx.fillRect(0,0,canvas.width,canvas.height);
+}
+
+/* ========== SAMPLING ========== */
+const SAMPLING_TOKENS=['the','cat','sat','on','mat','a','big','small','red','blue'];
+const SAMPLING_LOGITS=[3.2,2.1,1.8,1.5,1.2,1.0,0.7,0.5,0.3,0.1];
+
+function updateSampling(){
+  const tau=+document.getElementById('temp-slider').value;
+  const k=+document.getElementById('topk-slider').value;
+  const p=+document.getElementById('topp-slider').value;
+  const rep=+document.getElementById('rep-slider').value;
+  const minp=+document.getElementById('minp-slider').value;
+  document.getElementById('temp-val').textContent=tau.toFixed(2);
+  document.getElementById('topk-val').textContent=k;
+  document.getElementById('topp-val').textContent=p.toFixed(2);
+  document.getElementById('rep-val').textContent=rep.toFixed(2);
+  document.getElementById('minp-val').textContent=minp.toFixed(2);
+
+  let scaled=SAMPLING_LOGITS.map(l=>l/tau);
+  if(rep>1.0){scaled[0]/=rep;}
+  const probs=softmax(scaled);
+
+  const sorted=[...probs.map((v,i)=>({v,i}))].sort((a,b)=>b.v-a.v);
+  const topkSet=new Set(sorted.slice(0,k).map(x=>x.i));
+  let cum=0; const toppSet=new Set();
+  for(const {v,i} of sorted){cum+=v;toppSet.add(i);if(cum>=p)break;}
+  // Min-p
+  const pmax = sorted[0].v;
+  const minpSet = new Set(sorted.filter(x=>x.v>=minp*pmax).map(x=>x.i));
+
+  const canvas=document.getElementById('sample-canvas');
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const bw=W/SAMPLING_TOKENS.length-4;
+  probs.forEach((p2,i)=>{
+    const x=i*(bw+4)+4,bh=p2*(H-50);
+    const inK=topkSet.has(i),inP=toppSet.has(i),inM=minpSet.has(i);
+    let color = '#334155';
+    if(inK&&inP&&inM) color = '#60a5fa';
+    else if(inK&&inP) color = '#a855f7';
+    else if(inK) color = '#22c55e';
+    else if(inP) color = '#f97316';
+    else if(inM) color = '#ec4899';
+    ctx.fillStyle=color;
+    ctx.fillRect(x,H-30-bh,bw,bh);
+    ctx.fillStyle='#94a3b8';ctx.font='10px sans-serif';ctx.textAlign='center';
+    ctx.fillText(SAMPLING_TOKENS[i],x+bw/2,H-14);
+    ctx.fillStyle='#f1f5f9';
+    if(bh>20) ctx.fillText((p2*100).toFixed(0)+'%',x+bw/2,H-32-bh);
+  });
+  ctx.fillStyle='#94a3b8';ctx.font='10px sans-serif';ctx.textAlign='left';
+  ctx.fillText('■ Top-k∩p∩minp  ■ Top-k∩p  ■ Top-k  ■ Top-p  ■ Min-p',4,H-2);
+
+  const greedyIdx=probs.indexOf(Math.max(...probs));
+  document.getElementById('sample-result').innerHTML=`
+    <strong>Greedy:</strong> "${SAMPLING_TOKENS[greedyIdx]}" (p=${probs[greedyIdx].toFixed(3)})<br>
+    <strong>Top-${k}:</strong> ${[...topkSet].map(i=>SAMPLING_TOKENS[i]).join(', ')}<br>
+    <strong>Nucleus (p=${p.toFixed(2)}):</strong> ${[...toppSet].map(i=>SAMPLING_TOKENS[i]).join(', ')}<br>
+    <strong>Min-p (${minp.toFixed(2)}):</strong> ${[...minpSet].map(i=>SAMPLING_TOKENS[i]).join(', ')}`;
+}
+
+/* ========== TABS ========== */
+function showTab(group, tab){
+  document.querySelectorAll(`.tab-content[id^="${group}-"]`).forEach(el=>el.classList.remove('active'));
+  document.getElementById(`${group}-${tab}`).classList.add('active');
+  // Update tab buttons
+  const parent = document.getElementById(`${group}-${tab}`).parentElement;
+  parent.querySelectorAll('.tab-btn').forEach(b=>{
+    b.classList.toggle('active', b.getAttribute('data-tab')===tab);
+  });
+}
+
+/* ========== MoE ========== */
+const MOE_EXPERTS = [
+  {id:0, theme:'animals'}, {id:1, theme:'code'}, {id:2, theme:'royalty'},
+  {id:3, theme:'emotion'}, {id:4, theme:'food'}, {id:5, theme:'verbs'},
+  {id:6, theme:'abstract'}, {id:7, theme:'physics'}
+];
+const MOE_LEX = {
+  animals:['cat','dog','mouse','lion','tiger','horse','bird','fish'],
+  code:['code','python','function','algorithm','variable','loop','class','compile'],
+  royalty:['king','queen','prince','royal','crown','throne','palace','duke'],
+  emotion:['happy','sad','angry','joy','love','hate','fear','hope'],
+  food:['pizza','bread','cheese','apple','rice','coffee','tea','sugar'],
+  verbs:['run','jump','eat','sleep','think','write','read','chase'],
+  abstract:['idea','concept','truth','beauty','logic','dream','soul','time'],
+  physics:['force','energy','mass','gravity','quantum','relativity','wave','particle']
+};
+
+function routeMoE(){
+  state.achievements.push('moe_done');
+  state.xp += 30;
+  saveState();
+  awardAchievement('moe_master');
+  updateDashboard();
+
+  const input = document.getElementById('moe-input').value.trim().toLowerCase();
+  const tokens = input.split(/\s+/).slice(0,10);
+  const output = document.getElementById('moe-output');
+  let html = '';
+  tokens.forEach((tok,i)=>{
+    // Compute router scores: each expert gets score based on overlap with its lexicon
+    const scores = MOE_EXPERTS.map(e=>{
+      let s = 0;
+      MOE_LEX[e.theme].forEach(w=>{if(tok.includes(w)||w.includes(tok))s+=1;});
+      if(tok.length>3) s += (tok.length-3)*0.1; // length bonus
+      s += Math.random()*0.3; // stochasticity
+      return s;
+    });
+    // Softmax
+    const probs = softmax(scores);
+    // Sort, take top-2
+    const ranked = probs.map((p,i)=>({p,i})).sort((a,b)=>b.p-a.p);
+    const top2 = ranked.slice(0,2);
+    const top2Sum = top2.reduce((s,x)=>s+x.p,0);
+    const top2Norm = top2.map(x=>({...x,p:x.p/top2Sum}));
+
+    html += `<div style="margin-bottom:16px;padding:14px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);">`;
+    html += `<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+      <span class="token-chip" style="background:var(--accent);color:#000;">"${tok}"</span>
+      <span style="font-size:12px;color:var(--text3);">→ routed to top-2 experts:</span>
+    </div>`;
+    html += `<div class="moe-grid">`;
+    MOE_EXPERTS.forEach((e,j)=>{
+      const inTop2 = top2Norm.find(x=>x.i===j);
+      const active = !!inTop2;
+      const displayProb = active ? inTop2.p : 0;
+      html += `<div class="expert ${active?'active':''}">
+        <div style="font-size:11px;color:var(--text3);">Expert ${e.id}</div>
+        <div style="font-size:14px;font-weight:700;color:var(--accent4);">${e.theme}</div>
+        <div class="expert-bar"><div class="expert-bar-fill" style="width:${displayProb*100}%;background:${active?'linear-gradient(90deg,var(--accent3),var(--accent))':'var(--surface3)'};"></div></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px;">weight: ${(probs[j]*100).toFixed(1)}%${active?' ⭐':''}</div>
+      </div>`;
+    });
+    html += `</div></div>`;
+  });
+  output.innerHTML = html;
+}
+
+/* ========== LONG CONTEXT ========== */
+const CTX_FILLER = [
+  'The history of Rome spans over two thousand years.',
+  'Coffee was first cultivated in Ethiopia around the 9th century.',
+  'The Pacific Ocean covers more area than all land combined.',
+  'Mathematics provides a framework for understanding patterns.',
+  'Solar eclipses occur when the Moon passes between Earth and Sun.',
+  'Bioluminescence is found in many deep-sea creatures.',
+  'The violin evolved from earlier bowed string instruments.',
+  'Coral reefs support about 25% of marine species.',
+  'Mountains form through tectonic plate collisions.',
+  'Honey bees communicate through complex dance patterns.',
+  'Ancient Greeks pioneered democratic governance systems.',
+  'The human brain contains approximately 86 billion neurons.',
+  'Linguistics studies the structure and evolution of language.',
+  'Migratory birds navigate using stars and magnetic fields.',
+  'Quantum mechanics describes behavior at atomic scales.',
+  'The Renaissance marked a cultural rebirth in Europe.',
+  'Glaciers store about 69% of Earth\'s fresh water.',
+  'Origami is the Japanese art of paper folding.',
+  'Photosynthesis converts sunlight into chemical energy.',
+  'The Silk Road connected East and West for centuries.',
+  'Volcanoes form at boundaries between tectonic plates.',
+  'Cinema emerged in the late 19th century as a new art form.',
+  'Bacteria are among Earth\'s oldest living organisms.',
+  'The alphabet we use today evolved from Phoenician script.',
+  'Dreams occur primarily during REM sleep cycles.',
+  'Cartography is the science of making maps.',
+  'Philosophy asks fundamental questions about existence.',
+  'The Amazon rainforest produces about 6% of Earth\'s oxygen.',
+  'Penicillin was discovered accidentally by Alexander Fleming.',
+  'Architecture reflects cultural values and available materials.',
+];
+
+const CTX_ANSWER = "NEEDLE: The secret code word is BLUEBIRD";
+
+function updateCtx(){
+  const pct = +document.getElementById('ctx-pos').value;
+  document.getElementById('ctx-pos-val').textContent = pct + '%';
+  // Build passage with needle at position pct
+  const totalSlots = 30;
+  const pos = Math.floor((pct/100) * totalSlots);
+  const passage = [...CTX_FILLER].slice(0,totalSlots);
+  passage[pos] = CTX_ANSWER;
+  const html = passage.map((p,i)=>{
+    const isNeedle = i===pos;
+    return `<div style="padding:4px 8px;${isNeedle?'background:rgba(249,115,22,.2);border-left:3px solid var(--accent2);padding-left:8px;color:var(--accent2);font-weight:700;border-radius:4px;':''}">${i+1}. ${p}</div>`;
+  }).join('');
+  document.getElementById('ctx-passage').innerHTML = html;
+
+  // Draw curve
+  const canvas = document.getElementById('ctx-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.fillStyle='#0a0f1c';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='#293449';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(40,20);ctx.lineTo(40,H-30);ctx.lineTo(W-20,H-30);ctx.stroke();
+  ctx.fillStyle='#94a3b8';ctx.font='11px sans-serif';ctx.textAlign='right';
+  ctx.fillText('Retrieval Accuracy',36,18);
+  ctx.textAlign='left';ctx.fillText('Position in context (%)',W-180,H-12);
+  // U-curve
+  ctx.strokeStyle='#60a5fa';ctx.lineWidth=2.5;ctx.beginPath();
+  for(let x=0;x<=W-60;x++){
+    const pct2 = x/(W-60)*100;
+    const y = H-30 - (Math.sin((pct2/100)*Math.PI)*0.7 + 0.2)*(H-60);
+    if(x===0)ctx.moveTo(40+x,y);else ctx.lineTo(40+x,y);
+  }
+  ctx.stroke();
+  // Current position
+  const curX = 40 + (pct/100)*(W-60);
+  ctx.strokeStyle='#f97316';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);
+  ctx.beginPath();ctx.moveTo(curX,20);ctx.lineTo(curX,H-30);ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='#f97316';ctx.beginPath();ctx.arc(curX,20,5,0,Math.PI*2);ctx.fill();
+}
+
+function runCtx(){
+  const pct = +document.getElementById('ctx-pos').value;
+  // Simulate: U-shaped curve. accuracy = 0.5 + 0.45 * sin(pct/100 * pi)
+  const acc = 0.5 + 0.45*Math.sin((pct/100)*Math.PI);
+  const pctAcc = Math.round(acc*100);
+  const result = document.getElementById('ctx-result');
+  if(pct < 15 || pct > 85){
+    result.innerHTML = `<span style="color:var(--accent3);font-weight:700;">✓ HIGH accuracy (${pctAcc}%)</span> — Needle is near the start/end of context. The model attends well to it.`;
+  } else if(pct > 35 && pct < 65){
+    result.innerHTML = `<span style="color:var(--red);font-weight:700;">✗ LOW accuracy (${pctAcc}%)</span> — Needle is in the middle. The model attends poorly here ("Lost in the Middle" effect, Liu et al., 2023).`;
+  } else {
+    result.innerHTML = `<span style="color:var(--warn);font-weight:700;">~ MEDIUM accuracy (${pctAcc}%)</span> — Transitional region.`;
+  }
+  state.xp += 15;
+  saveState();
+  updateDashboard();
+}
+
+/* ========== RLHF ========== */
+const RLHF_PAIRS = [
+  {prompt:'Explain gravity to a 5-year-old',
+   good:'Gravity is like an invisible hug from the Earth! It keeps you on the ground so you don\'t float away. When you throw a ball up, gravity says "come back down!" and brings it back to you.',
+   bad:'Gravitational force is the attractive force between two masses, described by Newton\'s law: F = G(m₁m₂)/r². This universal constant G ≈ 6.674×10⁻¹¹ N⋅m²/kg².'},
+  {prompt:'Write a short poem about rain',
+   good:'Soft drops on the window pane,\nPattering a gentle rhythm.\nThe earth drinks deep, the flowers smile,\nAnd puddles paint the sky.',
+   bad:'Rain is precipitation. When water vapor in the atmosphere condenses and becomes heavy enough to fall due to gravity, it forms liquid water droplets reaching the ground.'},
+  {prompt:'How do I make a good cup of coffee?',
+   good:'Start with fresh whole beans and grind them just before brewing. Use water just off boil (~200°F). Ratio: 15g coffee to 240ml water. Brew ~4 minutes in a French press. Enjoy!',
+   bad:'Coffee is made from roasted seeds of the Coffea plant. The two most popular species are Arabica and Robusta. Caffeine content varies between 80-200mg per 8oz cup.'},
+  {prompt:'Help me feel less anxious about a job interview',
+   good:'It\'s completely normal to feel nervous — it means you care! Try this: take 5 deep breaths, remind yourself of 3 things you\'re good at, and remember that an interview is also YOUR chance to see if they\'re right for you.',
+   bad:'Anxiety is a psychological state characterized by feelings of worry, nervousness, or unease. It activates the sympathetic nervous system. CBT is the most evidence-based treatment.'},
+  {prompt:'What should I cook for dinner tonight?',
+   good:'How about a quick stir-fry? Slice whatever veggies you have — bell peppers, broccoli, carrots — toss in a hot pan with garlic and soy sauce. Add leftover rice or noodles. Ready in 15 minutes!',
+   bad:'A balanced dinner should contain macronutrients in appropriate ratios: 45-65% carbohydrates, 20-35% fat, 10-35% protein. USDA recommends 2-3 cups of vegetables daily.'}
+];
+let rlhfIdx = 0;
+let rlhfScores = [];
+
+function initRLHF(){
+  if(rlhfIdx >= RLHF_PAIRS.length) rlhfIdx = 0;
+  renderRLHFPair();
+}
+
+function renderRLHFPair(){
+  if(rlhfIdx >= RLHF_PAIRS.length){
+    document.getElementById('rlhf-annotation').innerHTML = '<p style="color:var(--accent3);font-size:15px;font-weight:600;">✅ All pairs annotated! The reward model is now trained on your preferences.</p>';
+    document.getElementById('rlhf-next').style.display = 'none';
+    drawRewardModel();
+    return;
+  }
+  const pair = RLHF_PAIRS[rlhfIdx];
+  let html = `<div style="padding:12px 16px;background:var(--surface2);border-radius:8px;margin-bottom:12px;"><strong>Prompt:</strong> ${pair.prompt}</div>`;
+  html += `<div style="display:flex;gap:12px;margin:12px 0;flex-wrap:wrap;">
+    <div class="rlhf-option" onclick="selectRLHF(this,0)" id="rlhf-opt-0" style="flex:1;min-width:240px;"><h4 style="color:var(--accent3);">Response A (Helpful)</h4><p style="font-size:13px;">${pair.good.replace(/\n/g,'<br>')}</p></div>
+    <div class="rlhf-option" onclick="selectRLHF(this,1)" id="rlhf-opt-1" style="flex:1;min-width:240px;"><h4 style="color:var(--accent4);">Response B (Technical)</h4><p style="font-size:13px;">${pair.bad.replace(/\n/g,'<br>')}</p></div>
+  </div>`;
+  document.getElementById('rlhf-annotation').innerHTML = html;
+  document.getElementById('rlhf-progress-text').textContent = `Pair ${rlhfIdx+1} of ${RLHF_PAIRS.length}`;
+}
+
+function selectRLHF(el, choice){
+  document.querySelectorAll('.rlhf-option').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  rlhfScores.push(choice === 0 ? 1.0 : 0.0);
+  document.getElementById('rlhf-next').style.display = 'inline-block';
+}
+
+function rlhfNext(){
+  rlhfIdx++;
+  renderRLHFPair();
+}
+
+function rlhfReset(){
+  rlhfIdx = 0;
+  rlhfScores = [];
+  renderRLHFPair();
+  const canvas = document.getElementById('rlhf-canvas');
+  canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
+}
+
+function drawRewardModel(){
+  const canvas = document.getElementById('rlhf-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.fillStyle='#0a0f1c';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='#293449';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(40,20);ctx.lineTo(40,H-30);ctx.lineTo(W-20,H-30);ctx.stroke();
+  ctx.strokeStyle='#60a5fa';ctx.lineWidth=2;
+  ctx.beginPath();
+  const points = rlhfScores.length;
+  for(let i=0;i<points;i++){
+    const x = 40 + (i/(points-1||1)) * (W-60);
+    const avg = rlhfScores.slice(0,i+1).reduce((a,b)=>a+b,0)/(i+1);
+    const y = H - 30 - avg * (H-60);
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+  ctx.fillStyle='#22c55e';
+  for(let i=0;i<points;i++){
+    const x = 40 + (i/(points-1||1)) * (W-60);
+    const avg = rlhfScores.slice(0,i+1).reduce((a,b)=>a+b,0)/(i+1);
+    const y = H - 30 - avg * (H-60);
+    ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);ctx.fill();
+  }
+  ctx.fillStyle='#94a3b8';ctx.font='11px sans-serif';ctx.textAlign='left';
+  ctx.fillText('Reward Score (avg)',4,16);
+  ctx.fillText('← training step →',W/2-50,H-10);
+}
+
+/* ========== MINI-LLM ========== */
+const MINI_CORPUS = `The transformer is a neural network architecture that has revolutionized natural language processing. It uses self-attention mechanisms to process input sequences in parallel, making it both faster and more effective than previous recurrent approaches. The key insight is that attention allows the model to weigh the importance of different parts of the input when generating each part of the output. Large language models like GPT are trained on massive amounts of text data using self-supervised learning. They learn to predict the next token in a sequence, and through this simple objective, they develop remarkable capabilities in language understanding, generation, and reasoning. The training process involves several stages. First, pre-training on a large corpus teaches the model general language patterns. Then supervised fine-tuning on curated examples helps it follow instructions. Finally, reinforcement learning from human feedback aligns the model with human preferences and values. Attention is the core mechanism that makes transformers work. It allows each token in a sequence to attend to all other tokens, capturing long-range dependencies that were difficult for previous architectures to model. Multi-head attention runs several attention operations in parallel, each focusing on different aspects of the input. The future of AI is bright, with new architectures and training methods being developed every year. Researchers are exploring ways to make models more efficient, more capable, and more aligned with human values. The goal is to create AI systems that are helpful, harmless, and honest. The cat sat on the mat. The dog ran through the park. Children love to play outside in the sunshine. Music brings joy to people around the world. Books open doors to new worlds and ideas. Cooking is both an art and a science. Mountains rise tall above the valleys below. Rivers flow from high peaks to the seas. Stars shine brightly in the dark night sky. Friends make life better in countless ways. Laughter is the best medicine for sadness. Dreams inspire us to reach for greatness. Time heals all wounds eventually.`;
+
+const miniLLM = {
+  corpus: MINI_CORPUS.toLowerCase(),
+  grams: {},
+  unigram: {},
+  vocab: new Set(),
+
+  train(){
+    this.vocab = new Set(this.corpus);
+    // Build n-gram counts for n=1..6
+    for(let n=1;n<=6;n++){
+      this.grams[n] = {};
+      for(let i=0;i<=this.corpus.length-n;i++){
+        const key = this.corpus.slice(i, i+n);
+        const next = this.corpus[i+n];
+        if(next === undefined) continue;
+        if(!this.grams[n][key]) this.grams[n][key] = {};
+        this.grams[n][key][next] = (this.grams[n][key][next]||0)+1;
+      }
+      // Normalize
+      for(const k in this.grams[n]){
+        const total = Object.values(this.grams[n][k]).reduce((a,b)=>a+b,0);
+        for(const c in this.grams[n][k]) this.grams[n][key][c]/=total;
+        for(const c in this.grams[n][k]) this.grams[n][k][c]/=total;
+      }
+    }
+    // Unigram
+    for(const c of this.corpus){this.unigram[c]=(this.unigram[c]||0)+1;}
+    const total = Object.values(this.unigram).reduce((a,b)=>a+b,0);
+    for(const k in this.unigram) this.unigram[k]/=total;
+  },
+
+  generate(prompt='', len=100, temp=0.8, ctxLen=3){
+    let text = prompt.toLowerCase();
+    const result = text;
+    for(let i=0;i<len;i++){
+      const next = this.next(text, temp, ctxLen);
+      text += next;
+    }
+    return text;
+  },
+
+  next(context, temp, ctxLen){
+    let dist;
+    // Try longest context first
+    for(let n=ctxLen;n>=1;n--){
+      if(context.length>=n){
+        const key = context.slice(-n);
+        if(this.grams[n][key]){
+          dist = this.grams[n][key];
+          break;
+        }
+      }
+    }
+    if(!dist) dist = this.unigram;
+    const chars = Object.keys(dist);
+    const probs = chars.map(c=>dist[c]);
+    return chars[sampleFromProbs(probs, temp)];
+  }
+};
+
+function initMini(){
+  miniLLM.train();
+  document.getElementById('mini-corpus-size').textContent = miniLLM.corpus.length.toLocaleString();
+  document.getElementById('mini-vocab-size').textContent = miniLLM.vocab.size;
+  let total = 0;
+  for(let n=1;n<=6;n++) total += Object.keys(miniLLM.grams[n]).length;
+  document.getElementById('mini-gram-count').textContent = total.toLocaleString();
+}
+
+function updateMiniCtx(){
+  document.getElementById('mini-ctx-val').textContent = document.getElementById('mini-ctx').value;
+}
+
+function runMini(){
+  state.achievements.push('mini_used');
+  state.xp += 50;
+  saveState();
+  awardAchievement('mini_master');
+  updateDashboard();
+
+  const prompt = document.getElementById('mini-prompt').value;
+  const temp = +document.getElementById('mini-temp').value;
+  const ctxLen = +document.getElementById('mini-ctx').value;
+  const len = +document.getElementById('mini-len').value;
+  const out = miniLLM.generate(prompt, len, temp, ctxLen);
+  document.getElementById('mini-output').textContent = out;
+}
+
+function randomMini(){
+  const starters = ['The ','In the ','A ','When ','As ','One ','Many ','Some '];
+  document.getElementById('mini-prompt').value = starters[Math.floor(Math.random()*starters.length)];
+  runMini();
+}
+
+/* ========== AI TUTOR ========== */
+const TUTOR_RESPONSES = [
+  {keys:['what is attention','explain attention','how attention','attention work'],
+   answer:'🧠 **Self-Attention** is the core mechanism of Transformers. Each token in a sequence computes three vectors: Query (Q), Key (K), and Value (V). The attention score from token i to token j is computed as:\n\n`score(i,j) = Q_i · K_j / √d_k`\n\nThen softmax normalizes these into a probability distribution, and the output is a weighted sum of V vectors. This lets each token "look at" all other tokens and decide how much to focus on each.\n\n👉 Try it yourself in the **Attention** module — type a sentence and watch the heatmap.'},
+  {keys:['rlhf','reinforcement learning','human feedback'],
+   answer:'🎯 **RLHF** (Reinforcement Learning from Human Feedback) is how we align LLMs with human preferences. It works in 3 steps:\n\n1. **Collect preferences**: Humans rank model outputs (A is better than B)\n2. **Train reward model**: It learns to predict these rankings using the Bradley-Terry model\n3. **Optimize policy**: PPO adjusts the LLM to maximize reward while staying close to the original\n\n**DPO** is a simpler alternative that skips the explicit reward model. Try the **RLHF simulator** to be the human ranker!'},
+  {keys:['tokeniz','bpe','subword'],
+   answer:'🔤 **Tokenization** converts text into integers the model can process. **BPE (Byte Pair Encoding)** works by:\n1. Starting with individual characters\n2. Repeatedly merging the most frequent adjacent pair\n3. Stopping at target vocab size (typically 32K-128K)\n\nWhy subwords? They handle rare words gracefully ("unbelievable" → ["un", "believ", "able"]) while keeping common words whole. Try the **Tokenization** module — type any text and see it split live.'},
+  {keys:['sqrt','d_k','scale','why divide'],
+   answer:'📐 The `√d_k` scaling in `softmax(QKᵀ/√d_k)V` prevents **softmax saturation**. Without it, large dot products (when d_k is big) push softmax into regions where the gradient is nearly zero — the model can\'t learn. Scaling by √d_k keeps the variance of QKᵀ at ~1, regardless of dimension. This was a key insight from the original Transformer paper.'},
+  {keys:['rope','rotary'],
+   answer:'🌀 **RoPE (Rotary Position Embedding)** encodes position by rotating Q and K vectors by position-dependent angles. The beautiful property: `attention(q_m, k_n) = attention(q_0 rotated by mθ, k_0 rotated by nθ)` — the result depends only on the relative position (m-n). This gives much better length extrapolation than absolute sinusoidal encodings. Used by LLaMA, Mistral, GPT-NeoX.'},
+  {keys:['how does llm','how do llm','llm work','explain llm'],
+   answer:'🤖 An LLM is essentially a **next-token predictor**. Given a sequence of tokens, it outputs a probability distribution over what comes next. Train it on enough internet text and this simple objective produces emergent capabilities like reasoning, translation, and coding.\n\nThe full pipeline: Text → Tokens → Embeddings → +Positions → N×Transformer Blocks → Logits → Softmax → Sample next token → Loop. See the **Overview** module for a clickable walkthrough.'},
+  {keys:['dpo','direct preference'],
+   answer:'⚖️ **DPO (Direct Preference Optimization)** bypasses the reward model entirely. The key insight: the optimal RLHF policy can be expressed in closed form, so you can directly optimize on preference pairs without a separate reward network. Simpler, more stable, often better. The loss is:\n\n`L = -log σ(β·log(π_θ(y_w)/π_ref(y_w)) - β·log(π_θ(y_l)/π_ref(y_l)))`'},
+  {keys:['mamba','ssm','state space'],
+   answer:'🐍 **Mamba** is a state space model (SSM) that achieves **linear-time** sequence modeling, beating Transformers\' O(n²). The trick: it makes the SSM parameters (B, C, Δ) **input-dependent**, so the model can selectively remember or forget information based on the current token. Mamba-2 (2024) showed SSMs and linear attention are mathematically equivalent under certain constraints. Hybrid models like Jamba interleave Mamba and attention layers.'},
+  {keys:['transformer','what is a transformer','architecture'],
+   answer:'🏗️ A **Transformer** is a neural network architecture based entirely on attention (no recurrence or convolution). The original 2017 paper used encoder-decoder for translation. Modern LLMs are mostly decoder-only (GPT-style). Each block has:\n- Multi-Head Self-Attention (mix info across positions)\n- Feed-Forward Network (process each position independently)\n- Residual connections + LayerNorm\n\nStack N of these blocks and you get an LLM.'},
+  {keys:['embedding','vector'],
+   answer:'📐 An **embedding** is a learned mapping from discrete tokens (IDs) to continuous vectors. The embedding matrix E ∈ ℝ^(V×d) has V rows (vocab size) and d columns (model dimension). Words with similar meanings end up with similar vectors — you can do math like `king - man + woman ≈ queen`. Try the **Embeddings** module to see this in action.'},
+  {keys:['flash attention','memory','efficient'],
+   answer:'⚡ **Flash Attention** computes exact attention using **tiled SRAM operations** instead of materializing the full n×n matrix in HBM. This reduces memory from O(n²) to O(n) — enabling much longer contexts. The math is identical to standard attention, just implemented more efficiently. FlashAttn-2/3 further optimize for modern GPUs.'},
+  {keys:['moe','mixture','expert','router'],
+   answer:'🌳 **Mixture of Experts (MoE)** scales parameters without scaling compute. Each FFN is split into N "experts" (e.g., 8 or 64). A learned **router** selects top-k (usually 2) experts per token. So a 47B-param model only uses ~13B active params per token. Trade-off: more memory, but cheaper inference. Mixtral 8×7B is the famous example. Try the **MoE** module!'},
+  {keys:['sampling','temperature','top-k','top-p','nucleus'],
+   answer:'🎲 After the LLM outputs logits (raw scores), we need to convert them into an actual token. Three common strategies:\n- **Greedy**: always pick the highest-prob token (deterministic, can be repetitive)\n- **Top-k**: sample from the top k most probable tokens\n- **Top-p (nucleus)**: sample from the smallest set whose cumulative probability ≥ p\n- **Temperature**: divide logits by τ — low τ = focused, high τ = creative/chaotic\n\nPlay with all of these in the **Sampling Playground**.'},
+  {keys:['quantization','int8','int4'],
+   answer:'🔢 **Quantization** converts model weights from fp32 to lower precision (int8, int4). This shrinks memory (4-8×) and speeds up inference with minimal quality loss. Techniques include post-training quantization (PTQ) and quantization-aware training (QAT). Essential for running large models on consumer hardware.'},
+  {keys:['rag','retrieval'],
+   answer:'📚 **RAG (Retrieval-Augmented Generation)** gives an LLM access to external knowledge. Before answering, the system retrieves relevant documents from a vector database, then feeds them as context. This reduces hallucinations and lets the model access up-to-date info without retraining.'},
+  {keys:['hello','hi ','hey ','greetings'],
+   answer:'👋 Hi there! Great to meet you. I can explain any LLM concept — just ask about attention, training, sampling, alignment, or anything you saw in the modules. Try: "What is attention?" or "Explain Mamba".'},
+  {keys:['thanks','thank you','thx'],
+   answer:'😊 You\'re welcome! Keep exploring — every module you visit earns XP and unlocks achievements. The **Quiz** module is a great way to test what you\'ve learned.'},
+  {keys:['help','what can you','how do i'],
+   answer:'💡 I can explain any LLM topic. Try asking about:\n• Attention, RoPE, ALiBi\n• Tokenization, embeddings\n• Sampling strategies\n• Training, RLHF, DPO\n• Architectures (BERT, GPT, Mamba, MoE)\n• Or any specific paper/concept you saw here.'}
+];
+
+function findTutorAnswer(q){
+  const ql = q.toLowerCase();
+  for(const r of TUTOR_RESPONSES){
+    if(r.keys.some(k=>ql.includes(k))) return r.answer;
+  }
+  return `🤔 Great question! I'm a rule-based tutor, so I have answers for common topics. Try asking about: attention, RLHF, tokenization, RoPE, Mamba, MoE, sampling, embeddings, or DPO. Or explore the modules — each has detailed explanations.\n\nFor more, the **References** section lists the original papers for every concept.`;
+}
+
+function sendChat(){
+  const input = document.getElementById('chat-input');
+  const q = input.value.trim();
+  if(!q) return;
+  const box = document.getElementById('chat-box');
+  box.innerHTML += `<div class="chat-msg chat-user">${escapeHTML(q)}</div>`;
+  input.value = '';
+  setTimeout(()=>{
+    const a = findTutorAnswer(q);
+    box.innerHTML += `<div class="chat-msg chat-bot">${a.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\n/g,'<br>')}</div>`;
+    box.scrollTop = box.scrollHeight;
+  }, 400);
+  box.scrollTop = box.scrollHeight;
+}
+
+function quickChat(q){
+  document.getElementById('chat-input').value = q;
+  sendChat();
+}
+
+function escapeHTML(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+/* ========== QUIZ (50 questions) ========== */
+const QUESTIONS = [
+  {q:'What is the time complexity of standard self-attention with sequence length n?',opts:['O(n)','O(n log n)','O(n²)','O(n³)'],ans:2,exp:'Standard attention computes an n×n score matrix, giving O(n²d) time.'},
+  {q:'In Attention = softmax(QKᵀ/√d_k)V, why divide by √d_k?',opts:['Normalizes Q vectors','Prevents softmax saturation from large dot products','Reduces memory','Ensures weights sum to d_k'],ans:1,exp:'Large dot products push softmax into saturation. Scaling keeps variance at ~1.'},
+  {q:'What does RoPE stand for?',opts:['Robust Positional Encoding','Rotary Position Embedding','Recurrent Output Projection','Random Order Permutation'],ans:1,exp:'RoPE rotates Q/K by position-dependent angles — relative position aware.'},
+  {q:'Chinchilla scaling law recommends:',opts:['Train the largest possible model','Train N parameters on ~20N tokens','Always use more layers than heads','Scale batch size with LR'],ans:1,exp:'Hoffmann et al. (2022): N_tokens ≈ 20 × N_params for compute-optimality.'},
+  {q:'Flash Attention\'s key innovation:',opts:['Uses approximate attention','Reduces model params','Computes exact attention in SRAM tiles (O(n) memory)','Replaces softmax'],ans:2,exp:'FlashAttention tiles attention in fast SRAM, reducing HBM traffic.'},
+  {q:'What makes Mamba\'s SSM "selective"?',opts:['It prunes tokens','B, C, Δ are functions of the input','It uses learned masks','It prunes weights'],ans:1,exp:'Selective SSMs make parameters input-dependent.'},
+  {q:'DPO differs from PPO-RLHF by:',opts:['Needs a larger reward model','Trains on unlabeled data','Skips the explicit reward model entirely','Uses contrastive learning'],ans:2,exp:'DPO optimizes preference data directly — no reward model training.'},
+  {q:'Grouped Query Attention (GQA):',opts:['Multiple queries share one K/V head','One query → multiple K/V heads','Queries grouped by meaning','Heads pruned by gradient'],ans:0,exp:'GQA shares K/V across query groups, reducing KV cache.'},
+  {q:'Pre-LN is preferred over Post-LN because:',opts:['Lower training loss','Gradients flow through residual path unobstructed','Fewer params','Post-LN causes underfitting'],ans:1,exp:'Pre-LN keeps residual path gradient-clean.'},
+  {q:'SwiGLU is defined as:',opts:['SiLU(x)·x²','Swish(xW)·(xV) gate','max(0,x)·tanh(x)','sigmoid(x)+x'],ans:1,exp:'SwiGLU = SiLU(xW₁) ⊙ (xW₃), then × W₂.'},
+  {q:'The KL penalty in PPO-based RLHF prevents:',opts:['Overfitting','Policy from drifting too far from reference model','Reward model collapse','Gradient vanishing'],ans:1,exp:'L = E[r(y)] − β·KL(π_θ ∥ π_ref) prevents reward hacking.'},
+  {q:'The unembedding matrix maps:',opts:['Token IDs → embeddings','Hidden states → vocabulary logits','Attention → probabilities','Positions → embeddings'],ans:1,exp:'Maps d-dim hidden states to V-dim logits.'},
+  {q:'Speculative decoding uses:',opts:['Small draft model proposed, verified by large','Multi-token prediction','Multiple sequences, pick best','Dynamic beam width'],ans:0,exp:'A small model drafts, the large model verifies in one forward pass.'},
+  {q:'The Bradley-Terry model estimates:',opts:['Expected reward','P(A ≻ B) = σ(r(A) − r(B)) for preference pairs','Entropy of action distribution','KL divergence'],ans:1,exp:'Bradley-Terry models pairwise preferences via scalar rewards.'},
+  {q:'Encoder-decoder vs decoder-only for generation:',opts:['Encoder-decoder is always larger','Decoder-only cannot handle text input','Encoder-decoder uses cross-attention on encoded input','Encoder-decoder cannot be fine-tuned'],ans:2,exp:'Encoder-decoder encodes bidirectionally, decoder attends via cross-attention.'},
+  {q:'BPE tokenization works by:',opts:['Splitting at whitespace','Mapping each character to unique ID','Iteratively merging most frequent adjacent pairs','Neural segmenter'],ans:2,exp:'BPE starts at character level and merges most frequent pairs.'},
+  {q:'In d_model=512, h=8 heads, d_k =',opts:['512','64','128','256'],ans:1,exp:'d_k = d_model / h = 512/8 = 64.'},
+  {q:'The "Lost in the Middle" phenomenon describes:',opts:['Forgetting early training data','Models attending less to info in the middle of long contexts','Attention heads losing gradients','KV cache eviction'],ans:1,exp:'LLMs perform best when info is at start/end of context.'},
+  {q:'MoE improves efficiency by:',opts:['Reducing total params','Activating only sparse subset of expert FFNs per token','Sharing attention weights','Quantizing inactive experts'],ans:1,exp:'Router selects top-k experts per token — params scale without FLOPs scaling.'},
+  {q:'Mamba-2 SSD shows:',opts:['Mamba-2 is a BERT variant','SSMs and linear attention are mathematically equivalent under constraints','SSD is a hardware optimization','Mamba-2 uses dual attention'],ans:1,exp:'Dao & Gu (2024): SSMs are restricted linear attention.'},
+  {q:'Embedding matrix dimension is:',opts:['(d_model × d_ff)','(V × d_model) — V is vocab size','(n × d_model)','(h × d_k)'],ans:1,exp:'E ∈ ℝ^(V × d_model).'},
+  {q:'Temperature controls:',opts:['Inference speed','How peaked or flat the output distribution is','Vocabulary size','Number of heads'],ans:1,exp:'τ→0: peaked/greedy; τ→∞: uniform.'},
+  {q:'RMSNorm vs LayerNorm:',opts:['RMSNorm includes bias','RMSNorm normalizes by root mean square, not mean/variance','RMSNorm applies dropout','RMSNorm only works with causal'],ans:1,exp:'RMSNorm: x/√(mean(x²)+ε) · γ. Simpler, used in LLaMA.'},
+  {q:'KV cache during inference:',opts:['Stores attention weights for reuse','Caches K and V to avoid recomputation','Speeds up embedding lookup','Stores softmax output'],ans:1,exp:'KV cache stores computed K,V so new tokens skip recomputation.'},
+  {q:'Weight tying:',opts:['Sharing input embedding with output unembedding','Tying attention heads together','Sharing FFN across layers','Connecting two models'],ans:0,exp:'Tying E and Eᵀ reduces params, often improves quality.'},
+  {q:'The original Transformer used:',opts:['6 encoder, 6 decoder','12 encoder, 12 decoder','8 encoder, 8 decoder','4 encoder, 4 decoder'],ans:0,exp:'6+6 was the original 2017 setup.'},
+  {q:'Context window:',opts:['Number of layers','Max tokens the model can process at once','Vocabulary size','Number of heads'],ans:1,exp:'Context window = max sequence length.'},
+  {q:'Weight quantization:',opts:['Increases accuracy','Reduces model size and inference cost via lower-precision weights','Trains the model faster','Adds more layers'],ans:1,exp:'Quantization: fp32 → int8/int4 reduces memory/compute.'},
+  {q:'Chain-of-thought prompting:',opts:['Translating text','Asking the model to reason step-by-step','Repeating input','Generating code'],ans:1,exp:'CoT prompting significantly improves complex reasoning.'},
+  {q:'Mixture of Experts (MoE):',opts:['Combining multiple models','Router selects subset of FFN experts per token','Training multiple models and averaging','A type of attention'],ans:1,exp:'MoE uses a gating network to route each token to top-k FFN experts.'},
+  {q:'Why is Multi-Head Attention better than single-head?',opts:['Fewer parameters','Different heads can learn different relationship types','Faster computation','Easier to train'],ans:1,exp:'Each head specializes (syntax, semantics, etc.).'},
+  {q:'Softmax function converts logits to:',opts:['Integers','Probabilities that sum to 1','Negative values','Binary values'],ans:1,exp:'softmax: e^x_i / Σe^x_j → sums to 1.'},
+  {q:'Why scale embeddings by √d_model before adding position?',opts:['Faster computation','Balances magnitude with positional encoding','Reduces memory','Improves accuracy directly'],ans:1,exp:'Embeddings have variance ~1, PE has variance ~1, scaling balances them.'},
+  {q:'The original Transformer paper was published in:',opts:['2015','2016','2017','2018'],ans:2,exp:'Vaswani et al., NeurIPS 2017.'},
+  {q:'Top-k sampling with k=1 is equivalent to:',opts:['Nucleus sampling','Greedy decoding','Beam search','Random sampling'],ans:1,exp:'k=1 = always pick top = greedy.'},
+  {q:'What is the "softmax temperature trick" used for?',opts:['Speed up inference','Control randomness/creativity of generation','Reduce memory','Improve accuracy'],ans:1,exp:'τ controls the entropy of output distribution.'},
+  {q:'Which is NOT a positional encoding method?',opts:['Sinusoidal','RoPE','ALiBi','SigmoidNorm'],ans:3,exp:'SigmoidNorm isn\'t a real PE method.'},
+  {q:'In RLHF, the reward model is trained on:',opts:['Random text','Human preference rankings (A better than B)','Generated text','Test questions'],ans:1,exp:'Reward model learns from pairwise human preferences.'},
+  {q:'Layer normalization normalizes across:',opts:['Batch dimension','Feature/channel dimension per sample','Token dimension only','Sequence length'],ans:1,exp:'LayerNorm normalizes across features for each token.'},
+  {q:'Pre-training vs fine-tuning:',opts:['Pre-training is supervised','Fine-tuning is on small task-specific data','Both are identical','Pre-training uses no data'],ans:1,exp:'Fine-tuning adapts pre-trained model to specific task with small dataset.'},
+  {q:'What does "prompt engineering" refer to?',opts:['Hardware optimization','Crafting inputs to elicit desired outputs','Training new models','Quantizing models'],ans:1,exp:'Prompt engineering = designing inputs to maximize model performance.'},
+  {q:'SwiGLU has how many weight matrices?',opts:['2','3','4','1'],ans:1,exp:'SwiGLU uses W₁, W₂, W₃.'},
+  {q:'What is "Few-shot learning" in LLMs?',opts:['Training with few examples','Providing examples in the prompt at inference time','Reducing model size','Quantization technique'],ans:1,exp:'In-context learning: examples in prompt, no weight updates.'},
+  {q:'GQA\'s main inference benefit:',opts:['Faster training','Reduced KV cache memory','Better accuracy','Simpler implementation'],ans:1,exp:'GQA shares K/V heads → smaller KV cache → longer contexts possible.'},
+  {q:'Cross-entropy loss for next-token prediction:',opts:['L = -log p(correct)','L = correct × log(predicted)','L = (correct - predicted)²','L = max(0, 1 - correct × predicted)'],ans:0,exp:'Cross-entropy: negative log probability of the correct token.'},
+  {q:'Which model introduced in-context learning?',opts:['BERT','GPT-2','GPT-3','T5'],ans:2,exp:'GPT-3 (Brown et al., 2020) popularized few-shot in-context learning.'},
+  {q:'Beam search differs from greedy because:',opts:['It\'s faster','It tracks top-k sequences simultaneously','It uses temperature','It\'s stochastic'],ans:1,exp:'Beam search maintains top-k candidates at each step.'},
+  {q:'What does "instruction tuning" teach the model?',opts:['General language patterns','To follow natural language instructions','To classify images','To do math only'],ans:1,exp:'Instruction tuning aligns the model to follow user commands.'},
+  {q:'The "logit" is:',opts:['A probability','The raw unnormalized score from the model before softmax','A learned embedding','A position index'],ans:1,exp:'Logits = raw output scores, converted to probabilities via softmax.'},
+  {q:'Why use multiple attention heads instead of one bigger head?',opts:['Always better','Different heads can specialize on different relations','Fewer parameters','Faster'],ans:1,exp:'Multi-head lets the model jointly attend to info from different representation subspaces.'}
+];
+
+let qIdx=0, qScore=0, qAnswered=false;
+
+function renderQ(){
+  const q = QUESTIONS[qIdx];
+  document.getElementById('quiz-counter').textContent = `Question ${qIdx+1} of ${QUESTIONS.length}`;
+  document.getElementById('quiz-progress').style.width = `${(qIdx/QUESTIONS.length)*100}%`;
+  document.getElementById('quiz-q').textContent = q.q;
+  document.getElementById('quiz-explanation').style.display = 'none';
+  document.getElementById('quiz-next').style.display = 'none';
+  qAnswered = false;
+  document.getElementById('quiz-opts').innerHTML = q.opts.map((o,i)=>`<div class="quiz-opt" onclick="selectOpt(${i})">${String.fromCharCode(65+i)}. ${o}</div>`).join('');
+}
+
+function selectOpt(i){
+  if(qAnswered) return;
+  qAnswered = true;
+  const q = QUESTIONS[qIdx];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts[i].classList.add(i===q.ans?'correct':'wrong');
+  opts[q.ans].classList.add('correct');
+  if(i===q.ans) qScore++;
+  document.getElementById('quiz-explanation').style.display = 'block';
+  document.getElementById('quiz-explanation').innerHTML = '💡 ' + q.exp;
+  document.getElementById('quiz-next').style.display = 'inline-block';
+}
+
+function nextQ(){
+  qIdx++;
+  if(qIdx >= QUESTIONS.length){
+    document.getElementById('quiz-q').style.display = 'none';
+    document.getElementById('quiz-opts').style.display = 'none';
+    document.getElementById('quiz-explanation').style.display = 'none';
+    document.getElementById('quiz-next').style.display = 'none';
+    document.getElementById('quiz-score').style.display = 'block';
+    const pct = Math.round(qScore/QUESTIONS.length*100);
+    document.getElementById('score-display').textContent = `${qScore} / ${QUESTIONS.length} (${pct}%)`;
+    let grade = pct>=90?'🏆 Outstanding!':pct>=75?'⭐ Excellent!':pct>=60?'👍 Good job!':pct>=40?'📚 Keep studying!':'💪 Try again!';
+    document.getElementById('score-breakdown').innerHTML = `${grade}<br>+${qScore*10} XP earned`;
+    document.getElementById('quiz-progress').style.width = '100%';
+    state.quizAttempts++;
+    if(qScore > state.quizBest) state.quizBest = qScore;
+    state.xp += qScore*10;
+    saveState();
+    awardAchievement('quiz_starter');
+    if(state.quizBest>=40) awardAchievement('quiz_ace');
+    if(state.quizBest>=50) awardAchievement('perfect');
+    updateDashboard();
+  } else {
+    renderQ();
+  }
+}
+
+function restartQuiz(){
+  qIdx=0;qScore=0;
+  document.getElementById('quiz-q').style.display='';
+  document.getElementById('quiz-opts').style.display='';
+  document.getElementById('quiz-score').style.display='none';
+  renderQ();
+}
+
+/* ========== GLOSSARY ========== */
+const GLOSSARY = [
+  {term:'Attention', def:'Mechanism letting each token attend to all others via Q·K similarity and weighted V sum.'},
+  {term:'Backpropagation', def:'Algorithm computing gradients of loss w.r.t. all parameters via the chain rule.'},
+  {term:'Beam Search', def:'Decoding strategy keeping top-k candidate sequences at each step.'},
+  {term:'BPE', def:'Byte Pair Encoding — subword tokenization merging frequent adjacent pairs iteratively.'},
+  {term:'Bradley-Terry', def:'P(A ≻ B) = σ(r(A) − r(B)). Foundation of reward modeling.'},
+  {term:'Causal Attention', def:'Masked self-attention where each token sees only previous tokens.'},
+  {term:'Chinchilla Law', def:'Compute-optimal training uses D ≈ 20 × N tokens.'},
+  {term:'Context Window', def:'Max tokens the model can process at once.'},
+  {term:'Cross-Attention', def:'Attention where Q comes from one sequence, K/V from another (e.g., decoder ↔ encoder).'},
+  {term:'d_model', def:'Dimensionality of token embeddings and hidden states (e.g., 4096 in LLaMA-7B).'},
+  {term:'DPO', def:'Direct Preference Optimization — RLHF without explicit reward model.'},
+  {term:'Embedding', def:'Learned mapping from discrete token IDs to continuous d-dim vectors.'},
+  {term:'FFN', def:'Feed-Forward Network — 2-layer MLP applied per token; contains ~2/3 of params.'},
+  {term:'Flash Attention', def:'IO-aware attention algorithm using SRAM tiles → O(n) memory.'},
+  {term:'GQA', def:'Grouped Query Attention — multiple queries share K/V heads → smaller KV cache.'},
+  {term:'Greedy Decoding', def:'Always pick the argmax token. Fast, can be repetitive.'},
+  {term:'LayerNorm', def:'Normalizes activations across feature dimension. Variants: Pre-LN, RMSNorm.'},
+  {term:'LLM', def:'Large Language Model — neural net trained on text to predict next token.'},
+  {term:'Mamba', def:'Selective state space model with linear-time sequence modeling.'},
+  {term:'MoE', def:'Mixture of Experts — sparse FFN with learned routing, top-k activated per token.'},
+  {term:'Multi-Head Attention', def:'h attention heads run in parallel, concatenated and projected.'},
+  {term:'Nucleus Sampling', def:'Sample from smallest token set with cumulative probability ≥ p.'},
+  {term:'Positional Encoding', def:'Injects position info since Transformers are permutation-invariant.'},
+  {term:'Pre-LN', def:'Apply LayerNorm before sublayer. Better gradient flow than Post-LN.'},
+  {term:'PPO', def:'Proximal Policy Optimization — RL algorithm used in RLHF with KL penalty.'},
+  {term:'Quantization', def:'Convert fp32 weights to int8/int4 for memory and speed savings.'},
+  {term:'RLHF', def:'Reinforcement Learning from Human Feedback — alignment via preferences.'},
+  {term:'RMSNorm', def:'Simplified LayerNorm using only root mean square (no mean subtraction).'},
+  {term:'RoPE', def:'Rotary Position Embedding — rotates Q/K by position-dependent angles.'},
+  {term:'Sampling', def:'Stochastic token selection from output probability distribution.'},
+  {term:'Scaling Laws', def:'Empirical relations between model size, data, compute, and loss.'},
+  {term:'Self-Attention', def:'Attention where Q/K/V all come from the same sequence.'},
+  {term:'Softmax', def:'Converts logits to a probability distribution (sums to 1).'},
+  {term:'Speculative Decoding', def:'Small draft model proposes, large model verifies — same output, faster.'},
+  {term:'SwiGLU', def:'Gated FFN activation: SiLU(xW₁) ⊙ (xW₃). Used in LLaMA, Mistral.'},
+  {term:'Temperature', def:'τ in softmax(logits/τ). Low=focused, high=random.'},
+  {term:'Tokenization', def:'Convert text into token IDs the model can process.'},
+  {term:'Top-k Sampling', def:'Sample from only the k most probable tokens.'},
+  {term:'Transformer', def:'Attention-based architecture replacing recurrence (Vaswani et al., 2017).'},
+  {term:'Unembedding', def:'Maps hidden states to vocabulary logits (often tied with embedding).'},
+  {term:'Weight Tying', def:'Sharing E (input embedding) with Eᵀ (output unembedding).'},
+];
+
+function renderGlossary(){
+  const list = document.getElementById('glossary-list');
+  list.innerHTML = GLOSSARY.map(g=>`<div class="glossary-item" data-term="${g.term.toLowerCase()}"><div class="glossary-term">${g.term}</div><div class="glossary-def">${g.def}</div></div>`).join('');
+  document.getElementById('glossary-count').textContent = GLOSSARY.length + ' terms';
+}
+
+function filterGlossary(){
+  const query = document.getElementById('glossary-search').value.toLowerCase();
+  document.querySelectorAll('.glossary-item').forEach(item=>{
+    const term = item.getAttribute('data-term');
+    const def = item.querySelector('.glossary-def').textContent.toLowerCase();
+    item.style.display = (term.includes(query) || def.includes(query)) ? 'flex' : 'none';
+  });
+}
+
+/* ========== INIT ========== */
+applyMode();
+setLang(currentLang);
+updateDashboard();
+renderAchievements();
+document.querySelectorAll('nav button').forEach((b,i)=>{
+  if(state.visited.includes(sections[i])) b.classList.add('completed');
+});
+</script>
+<style>
+#minimax-floating-ball {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 10px 12px;
+  background: #222222;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  color: #F8F8F8;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  z-index: 9999;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+#minimax-floating-ball:hover {
+  transform: translateY(-2px);
+  background: #383838;
+}
+.minimax-ball-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.minimax-logo-wave {
+  width: 20px;
+  height: 20px;
+  background-image: url("data:image/svg+xml,%3Csvg%20preserveAspectRatio%3D%27none%27%20width%3D%27100%25%27%20height%3D%27100%25%27%20overflow%3D%27visible%27%20style%3D%27display%3A%20block%3B%27%20viewBox%3D%270%200%20170.136%20138.225%27%20fill%3D%27none%27%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%3E%3Cg%20id%3D%27Frame%202116748449%27%3E%3Cpath%20id%3D%27Subtract%27%20d%3D%27M170%20101.783C170%20105.144%20168.49%20108.327%20165.886%20110.453L134.963%20135.702C132.964%20137.334%20130.463%20138.225%20127.883%20138.225H10.4938C4.69824%20138.225%200%20133.527%200%20127.732V39.2289C0%2035.8597%201.51758%2032.6698%204.13162%2030.5442L38.5402%202.56547C40.536%200.942662%2043.0298%200.0567377%2045.602%200.0567377H159.506C165.302%200.0567377%20170%204.75498%20170%2010.5506V101.783Z%27%20fill%3D%27black%27%20style%3D%27fill%3Ablack%3Bfill-opacity%3A1%3B%27/%3E%3Cpath%20id%3D%27Subtract_2%27%20d%3D%27M149.011%2094.4632C149.011%2096.1471%20148.253%2097.7415%20146.946%2098.8043L125.893%20115.936C124.895%20116.748%20123.648%20117.191%20122.361%20117.191H24.6479C22.716%20117.191%2021.15%20115.625%2021.15%20113.693V46.1166C21.15%2044.4267%2021.9135%2042.8274%2023.2274%2041.7648L47.367%2022.2437C48.3638%2021.4376%2049.607%2020.9982%2050.8888%2020.9988L145.514%2021.0427C147.446%2021.0436%20149.011%2022.6094%20149.011%2024.5406V94.4632Z%27%20fill%3D%27white%27%20style%3D%27fill%3Awhite%3Bfill-opacity%3A1%3B%27/%3E%3Cpath%20id%3D%27Rectangle%20111142564%27%20d%3D%27M42.111%2080.8025C42.111%2077.7115%2044.6167%2075.2057%2047.7077%2075.2057H60.9999C64.0908%2075.2057%2066.5966%2077.7115%2066.5966%2080.8025V121.029H42.111V80.8025Z%27%20fill%3D%27black%27%20style%3D%27fill%3Ablack%3Bfill-opacity%3A1%3B%27/%3E%3Cpath%20id%3D%27Rectangle%20111142567%27%20d%3D%27M79.1894%2080.8025C79.1894%2077.7115%2081.6952%2075.2057%2084.7861%2075.2057H98.0783C101.169%2075.2057%20103.675%2077.7115%20103.675%2080.8025V121.029H79.1894V80.8025Z%27%20fill%3D%27black%27%20style%3D%27fill%3Ablack%3Bfill-opacity%3A1%3B%27/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 14px 11px;
+  background-color: #8FD1FF;
+  border-radius: 4px;
+}
+
+.minimax-ball-text {
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.minimax-close-icon {
+  margin-left: 8px;
+  font-size: 16px;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.minimax-close-icon:hover {
+  opacity: 1;
+}
+</style>
+<div id="minimax-floating-ball">
+  <div class="minimax-ball-content">
+    <div class="minimax-logo-wave"></div>
+    <span class="minimax-ball-text">Created by MiniMax Agent</span>
+  </div>
+  <div class="minimax-close-icon">×</div>
+</div>
+<script>
+// Initialize floating ball functionality
+function initFloatingBall() {
+  const ball = document.getElementById('minimax-floating-ball');
+  if (!ball) return;
+
+  // Initial animation
+  ball.style.opacity = '0';
+  ball.style.transform = 'translateY(20px)';
+
+  setTimeout(() => {
+    ball.style.opacity = '1';
+    ball.style.transform = 'translateY(0)';
+  }, 500);
+
+  // Handle logo click
+  const ballContent = ball.querySelector('.minimax-ball-content');
+  ballContent.addEventListener('click', function (e) {
+    e.stopPropagation();
+    window.open('https://agent.minimaxi.com/', '_blank');
+    ball.style.transform = 'scale(0.95)';
+    setTimeout(() => {
+      ball.style.transform = 'scale(1)';
+    }, 100);
+  });
+
+  // Handle close button click
+  const closeIcon = ball.querySelector('.minimax-close-icon');
+  closeIcon.addEventListener('click', function (e) {
+    e.stopPropagation();
+    ball.style.opacity = '0';
+    ball.style.transform = 'translateY(20px)';
+
+    setTimeout(() => {
+      ball.style.display = 'none';
+    }, 300);
+  });
+}
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', initFloatingBall); 
+</script>
+</body>
+</html>

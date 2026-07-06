@@ -1,0 +1,7 @@
+# Experiment 3: Reservoir Dispatch Optimization — Dependencies
+# Install: pip install -r requirements.txt
+numpy==1.26.4
+scipy==1.13.1
+matplotlib==3.9.0
+pandas==2.2.2
+pytest==8.2.2

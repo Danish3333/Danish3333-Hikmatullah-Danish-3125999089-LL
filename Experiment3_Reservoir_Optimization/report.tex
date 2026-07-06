@@ -1,0 +1,46 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, graphicx, hyperref, listings, booktabs}
+\usepackage[margin=2.5cm]{geometry}
+\title{Experiment 3: Water Resources Optimization — Reservoir Dispatch}
+\author{Hikmatullah Danish \quad 3125999089}
+\date{July 2026}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+During drought periods, reservoir operators face a fundamental tension between hydropower revenue and ecological protection. This experiment formulates a multi-objective optimization for a 7-day reservoir dispatch using Sequential Least Squares Programming (SLSQP). The system determines optimal daily release rates that maximize electricity revenue while maintaining a minimum ecological flow of 10~m$^3$/s, subject to storage capacity limits and mass-balance conservation.
+
+\section{Mathematical Formulation}
+The optimization problem is defined over $T = 7$ days with decision variables $Q_1, \ldots, Q_7$ (daily releases in m$^3$/s):
+
+\textbf{Objective:}
+\begin{equation}
+\max_{Q_t} \quad \text{Revenue} = K_{\text{hydro}} \sum_{t=1}^{7} Q_t \cdot 24 \cdot p_t
+\end{equation}
+where $K_{\text{hydro}} = \eta \rho g H / 1000$ (kW per m$^3$/s) and $p_t$ is the daily electricity price (\$/kWh).
+
+\textbf{Constraints:}
+\begin{align}
+V_{\min} \leq V_t &\leq V_{\max} \quad \forall t \\
+Q_{\text{eco}} \leq Q_t &\leq Q_{\max} \quad \forall t \\
+V_{t+1} &= V_t + (I_t - Q_t) \cdot 86400 \quad \forall t
+\end{align}
+
+\section{Multi-Objective Pareto Analysis}
+The ecological deficit is defined as $D = \sum_{t=1}^{7} \max(0,\; Q_{\text{eco}} - Q_t)$. A weighted-sum scalarization with 20 uniformly spaced weight pairs $(w_{\text{rev}}, w_{\text{eco}})$ generates the Pareto frontier. Both objectives are normalized by their maximum possible values to ensure comparable weight influence.
+
+\section{Implementation}
+The core functions are \texttt{compute\_storage(releases)} (mass-balance trajectory), \texttt{compute\_total\_revenue(releases)} (hydropower revenue), and \texttt{compute\_eco\_deficit(releases)} (ecological flow violation). The SLSQP optimizer uses a tolerance of 500~m$^3$ on storage bounds to prevent numerical infeasibility. The Pareto analysis runs 20 optimizations and produces a dual-panel figure with a scatter-colored frontier and a revenue-vs-ecology-weight line plot.
+
+\section{Testing \& Validation}
+The pytest suite contains 10 tests covering initial storage correctness, mass-balance accuracy, revenue positivity, revenue monotonicity, ecological deficit conditions, output file existence, and CSV format validation. The validation script runs 13 automated checks: release bounds, storage bounds, mass balance, revenue positivity, ecological deficit, file existence, dimension correctness, and infinite/NaN checks. All 10 tests and all 13 validation checks pass.
+
+\section{Results}
+The optimal schedule achieves a total revenue of \$54,910.69 with zero ecological deficit. The reservoir maintains storage within bounds throughout the 7-day period. The Pareto frontier reveals the cost of ecological protection: shifting from pure revenue maximization to zero-deficit operation reduces revenue by a measurable amount, visualized in the trade-off plot.
+
+\section{Conclusion}
+This experiment demonstrates that SLSQP provides efficient convergence for small-scale reservoir optimization. The tolerance parameter (500~m$^3$) proved essential for numerical feasibility. AI-assisted development generated the optimization scaffolding but required human tuning of constraint tolerances and objective normalization—confirming that numerical optimization demands both algorithmic understanding and domain-specific systems thinking.
+
+\end{document}

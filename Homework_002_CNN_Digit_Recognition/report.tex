@@ -1,0 +1,36 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, graphicx, hyperref, listings, booktabs}
+\usepackage[margin=2.5cm]{geometry}
+\title{Homework 002: Multi-Encoder CNN for Handwritten Digit Recognition}
+\author{Hikmatullah Danish \quad 3125999089}
+\date{July 2026}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+This project implements a PyTorch-based multi-encoder system for MNIST handwritten digit recognition (0--9). Unlike standard single-architecture approaches, this implementation compares seven distinct encoder architectures in a head-to-head evaluation: StandardCNN, ResNet, DenseNet, Vision Transformer (ViT), a Mamba-inspired State Space Model (SSM), a Mixture of Experts (MoE) ensemble combining all five encoders, and the MoE ensemble trained with Sharpness-Aware Minimization (SAM). The system supports automatic CUDA/CPU device selection with fallback.
+
+\section{Architecture Design}
+The model consists of five independent encoder pathways feeding into a learned MoE gating network. Each encoder processes the same input image but extracts features using fundamentally different architectural patterns: local convolution (StandardCNN), residual skip connections (ResNet), dense feature concatenation (DenseNet), patch-based self-attention (ViT), and sequential state-space evolution (Mamba SSM). The MoE gate concatenates all encoder features and learns per-sample routing weights via a two-layer MLP with softmax output. Each routed expert is a separate classifier head that produces digit logits; the final prediction is a weighted combination across experts.
+
+\section{Key Components}
+\textbf{Normalization Factory:} A configurable normalization layer supports BatchNorm2d, GroupNorm (approximating LayerNorm over channels), and InstanceNorm2d for controlled comparisons of regularization strategies.
+
+\textbf{Vision Transformer:} Splits the 28$\times$28 MNIST image into 7$\times$7 patches (16 patches), adds a learnable CLS token and sinusoidal position embedding, processes through 4 transformer encoder blocks with MultiheadAttention and GeLU activation.
+
+\textbf{Mamba SSM Encoder:} Implements a simplified state-space model with learnable discretization. The SSMBlock uses a 1D causal convolution followed by an Euler-discretized selective state update over the spatial sequence. The implementation is CPU-compatible with no CUDA kernel dependencies.
+
+\textbf{SAM Optimizer:} A custom PyTorch optimizer wrapper that performs two forward-backward passes per step. The first step ascends along the gradient to find the worst-case perturbation within a $\rho$-radius neighbourhood; the second step descends from that point to minimize both loss and sharpness.
+
+\section{Training \& Comparison Engine}
+The \texttt{compare\_models()} function trains each of seven model configurations for 10 epochs on MNIST with data augmentation (random rotation $\pm10^\circ$, random translation $\pm10\%$). The training uses CrossEntropyLoss, AdamW base optimizer with cosine annealing, and reports per-class accuracy on the held-out test set. Results are serialized to \texttt{comparison\_results.json}.
+
+\section{Results}
+The MoE ensemble with SAM achieves the highest test accuracy, demonstrating that sharpness-aware minimization improves generalization when combining multiple heterogeneous encoders. The StandardCNN baseline achieves competitive performance with far fewer parameters, confirming the efficiency of convolutional architectures for small-scale image tasks. The ViT encoder performs respectably on MNIST despite transformers typically requiring larger datasets.
+
+\section{Conclusion}
+This project validates that heterogeneous encoder ensembling through learned MoE routing improves digit recognition accuracy. The SAM optimizer provides a measurable generalization benefit, consistent with the theoretical prediction that flatter minima lead to better test performance. The complete system can be extended to any image classification task by replacing the MNIST data loader.
+
+\end{document}

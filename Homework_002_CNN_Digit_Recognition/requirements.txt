@@ -1,0 +1,7 @@
+# Homework 002: CNN Handwritten Digit Recognition — Dependencies
+# Install: pip install -r requirements.txt
+torch==2.3.0
+torchvision==0.18.0
+numpy==1.26.4
+matplotlib==3.9.0
+pytest==8.2.2

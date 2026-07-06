@@ -1,0 +1,20 @@
+============================================================
+VALIDATION REPORT -- Experiment 4: Flood Inundation Analysis
+Date: 2026-07-07 02:34:17
+============================================================
+[PASS] V01: DEM shape is (100,100) -- (100, 100)
+[PASS] V02: DEM min >= 29.9m -- 30.0m
+[PASS] V03: DEM max <= 80.1m -- 80.0m
+[PASS] V04: DEM reproducible (same seed)
+[PASS] V05: WL<min -> 0% -- 0.000%
+[PASS] V06: WL>max -> 100% -- 100.000%
+[PASS] V07: Flood@50m >= Flood@40m -- 37.2% >= 10.1%
+[PASS] V08: All depth values >= 0 -- min=0.00
+[PASS] V09: Flood % in [0,100] -- 55.7%
+[PASS] V10: Rising water monotonic
+[PASS] V11: Built-in validate() all pass -- 5/5
+[PASS] V12: flood_extent_40m.png exists
+[PASS] V13: flood_extent_50m.png exists
+------------------------------------------------------------
+Result: 13/13 PASSED
+Conclusion: All flood inundation physical constraints verified.
