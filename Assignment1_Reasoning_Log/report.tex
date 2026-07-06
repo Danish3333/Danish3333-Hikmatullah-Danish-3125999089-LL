@@ -1,0 +1,34 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, graphicx, hyperref, listings, booktabs}
+\usepackage[margin=2.5cm]{geometry}
+\title{Assignment 1: The Reasoning Log — CoT Prompting Analysis}
+\author{Hikmatullah Danish \quad 3125999089}
+\date{July 2026}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+This assignment investigates the impact of Chain-of-Thought (CoT) prompting on AI-generated code quality using the SCS-CN runoff formula as a case study. Two prompts were submitted to an AI assistant: a naive one-line request (``Write a Python function to calculate SCS-CN runoff'') and a structured CoT prompt with role assignment, formula recall, boundary condition enumeration, and verification against a known example. The outputs were compared across six quality criteria.
+
+\section{Methodology}
+The SCS-CN formula computes direct runoff $Q$ from rainfall $P$ and a dimensionless Curve Number $CN$:
+\begin{equation}
+Q = \begin{cases}
+0 & \text{if } P \leq I_a \\
+\displaystyle\frac{(P - I_a)^2}{P - I_a + S} & \text{if } P > I_a
+\end{cases}
+\end{equation}
+where $S = (25400/CN) - 254$ and $I_a = 0.2S$. The naive prompt provided only the level-0 instruction. The CoT prompt added: (1) role assignment as a hydrology expert, (2) step-by-step formula recall, (3) explicit enumeration of three physical boundary conditions ($P=0 \implies Q=0$, $P \leq I_a \implies Q=0$, $Q \leq P$), and (4) verification with a known example ($P=50$, $CN=80 \implies Q=13.8$ mm).
+
+\section{Results}
+The naive output produced a function with six errors: missing $P \leq I_a$ check (returning negative runoff for small rainfall), no $Q \leq P$ enforcement, no input validation (division by zero at $CN=0$), no docstring, no type hints, and no edge-case handling for $P=0$. The CoT output produced a complete function with all three boundary conditions handled, ValueError raising for invalid inputs, full docstring with parameter descriptions, float type annotations, and verification against the known example. A live demonstration script \texttt{demo\_naive\_vs\_cot.py} confirmed that the naive function fails 2 of 4 test cases (incorrect output for $P=0$ and $P<I_a$) while the CoT function passes all 4.
+
+\section{AI Self-Verification}
+A third prompt asked the AI to peer-review its own CoT-generated output against five physical constraints. The AI correctly confirmed that all checks passed and identified the $P = I_a$ floating-point boundary as a potential edge case handled by the $\leq$ comparator.
+
+\section{Conclusion}
+CoT prompting improved code quality from approximately 50\% to 100\% on the SCS-CN benchmark. The key mechanism was explicit enumeration of physical constraints in the prompt—the AI will not invent domain-specific boundary conditions without being instructed. This assignment provides empirical evidence that structured prompting transforms AI from a syntactic code generator into a physically-validated engineering assistant.
+
+\end{document}

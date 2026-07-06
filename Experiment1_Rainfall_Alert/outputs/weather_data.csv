@@ -1,0 +1,6 @@
+City,Timestamp,Rainfall_mmh,Temperature_C,Humidity_pct,Description,Alert_Level,CMA_Category
+Beijing,2026-07-07 02:22:05,0.00,27.3,50,broken clouds,Green,Light rain / Moderate rain
+Shanghai,2026-07-07 02:22:06,0.00,27.3,88,scattered clouds,Green,Light rain / Moderate rain
+Guangzhou,2026-07-07 02:22:07,0.00,27.2,79,overcast clouds,Green,Light rain / Moderate rain
+Shenzhen,2026-07-07 02:22:08,0.00,27.1,94,overcast clouds,Green,Light rain / Moderate rain
+Wuhan,2026-07-07 02:22:08,0.00,24.9,94,overcast clouds,Green,Light rain / Moderate rain

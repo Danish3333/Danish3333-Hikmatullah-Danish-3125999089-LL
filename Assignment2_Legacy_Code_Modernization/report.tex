@@ -1,0 +1,30 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, graphicx, hyperref, listings, booktabs}
+\usepackage[margin=2.5cm]{geometry}
+\title{Assignment 2: Legacy Code Modernization}
+\author{Hikmatullah Danish \quad 3125999089}
+\date{July 2026}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+This assignment demonstrates AI-assisted legacy code modernization by taking a Python~2 rainfall monitoring script (circa 2018) and migrating it to a production-ready Python~3.12 codebase. The legacy script used \texttt{urllib2}, lacked error handling, contained a reversed alert-threshold bug, and had no type annotations. The modernized version uses \texttt{requests} with timeouts, \texttt{@dataclass} structured returns, context-managed file I/O, full type hints, and corrected threshold logic.
+
+\section{Issues Identified in Legacy Code}
+Fourteen distinct issues were found: Python~2-only library (\texttt{urllib2}), no error handling (crash on API failure), reversed alert thresholds ($>10$ yellow, $>20$ red instead of $<10$ green, $\geq20$ red), magic numbers without named constants, hardcoded three-city list, missing context manager for file I/O, no type hints, no docstrings, variable scope error (\texttt{city} used in \texttt{process()} without explicit parameter), string concatenation for URLs without encoding, no HTTP timeout, no unit tests, ambiguous tuple returns, and no input validation.
+
+\section{Modernization Strategy}
+The modernization followed five steps: (1) replace \texttt{urllib2} with \texttt{requests.get()} including a 10-second timeout and \texttt{raise\_for\_status()}; (2) create a \texttt{WeatherData} dataclass to replace the ambiguous tuple return; (3) add type hints throughout (float, str, Tuple, Optional, List, Dict); (4) fix the alert bug by implementing a correct \texttt{check\_alert()} with CMA-compliant thresholds; (5) use context managers for all file operations.
+
+\section{Code Map}
+The AI-generated architecture map shows five layers: Data (WeatherData dataclass), API (fetch\_weather with requests), Business (check\_alert threshold logic), Domain (get\_rainfall\_category CMA classification), and Persistence (log\_alert with context manager). The data flow is: OpenWeatherMap API $\rightarrow$ \texttt{requests.get()} $\rightarrow$ JSON parse $\rightarrow$ WeatherData $\rightarrow$ check\_alert $\rightarrow$ log if Red $\rightarrow$ console output.
+
+\section{Results}
+The modernized code passes all functional tests: API connectivity to five Chinese cities, correct alert classification at all boundary conditions (0, 9.99, 10.0, 15.0, 19.99, 20.0, 50, 100 mm/h), and proper file-log creation with timestamps. The \texttt{before\_after\_comparison.md} documents 12 quality improvements.
+
+\section{Conclusion}
+AI-assisted modernization reduced the refactoring effort from hours to minutes by generating the dataclass, type annotations, and context-manager patterns automatically. However, the human engineer was essential for identifying the reversed threshold bug—an error the AI would have propagated if not for domain-specific review. This assignment confirms that AI excels at mechanical code transformation but requires human oversight for domain logic correctness.
+
+\end{document}

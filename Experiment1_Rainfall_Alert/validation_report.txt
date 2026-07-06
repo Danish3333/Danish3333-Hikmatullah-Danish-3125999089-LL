@@ -1,0 +1,20 @@
+============================================================
+VALIDATION REPORT — Experiment 1: Rainfall Alert System
+Date: 2026-07-07 02:34:08
+============================================================
+[PASS] V01: Zero rainfall is Green — result: Green
+[PASS] V02: Rain=9.99 stays Normal — result: Normal
+[PASS] V03: Exact boundary Rain=10 = Moderate — result: Yellow
+[PASS] V04: Rain=19.99 stays Yellow — result: Yellow
+[PASS] V05: Exact boundary Rain=20 = Red — result: Red
+[PASS] V06: Rain=100 = Red (extreme) — result: Red
+[PASS] V07: check_alert returns 3-tuple — length=3
+[PASS] V08: Color string is rgba format — result: rgba(255, 255, 0, 0....
+[PASS] V09: Rain=5 category contains Light — result: Light rain / Moderate rain
+[PASS] V10: Rain=35 category contains Torrential — result: Torrential rain
+[PASS] V11: Rain=75 category contains Extreme — result: Heavy torrential rain / Extreme rainfall
+[PASS] V12: log_alert contains city name — in entry: True
+[PASS] V13: log_alert formats rainfall to 2 decimals — in entry: True
+------------------------------------------------------------
+Result: 13/13 PASSED
+Conclusion: All physical and logical alert thresholds verified correct.

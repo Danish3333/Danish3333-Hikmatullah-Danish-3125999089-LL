@@ -1,0 +1,33 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, graphicx, hyperref, listings, booktabs}
+\usepackage[margin=2.5cm]{geometry}
+\title{Experiment 1: Short-term Rainfall Forecasting \& Alert System}
+\author{Hikmatullah Danish \quad 3125999089}
+\date{July 2026}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+Rapid urbanization in China's megacities has made real-time rainfall monitoring essential for flood preparedness. This experiment builds a live rainfall alert dashboard for five major cities—Beijing, Shanghai, Guangzhou, Shenzhen, and Wuhan—by integrating the OpenWeatherMap API with a Streamlit frontend. The system applies the China Meteorological Administration (CMA) classification to trigger three-tier color-coded alerts and logs heavy-rain events for post-event analysis.
+
+\section{System Architecture}
+The application follows a four-layer design: (1) an API layer that fetches current weather data via HTTP GET requests with a 10-second timeout, (2) a business-logic layer that maps rainfall intensity to alert levels using threshold boundaries at 10 and 20 mm/h, (3) a persistence layer that appends Red-alert events to a timestamped log file, and (4) a presentation layer built with Streamlit and pydeck that renders an interactive China map with city markers.
+
+\section{Alert Threshold Design}
+The three-level alert system was chosen over the CMA four-level system for its universal traffic-light metaphor. The thresholds were set at $<10$ mm/h (Green/Normal), $10$--$20$ mm/h (Yellow/Moderate), and $\geq 20$ mm/h (Red/Heavy-ALERT). The exact boundaries at 10.0 and 20.0 mm/h were tested exhaustively because floating-point comparisons can misclassify borderline values. Validation confirmed correct behavior at 9.99, 10.0, 19.99, and 20.0 mm/h.
+
+\section{Implementation}
+The core functions are \texttt{fetch\_weather(city)} (returns a dictionary with rainfall, temperature, humidity, and description), \texttt{check\_alert(rainfall)} (returns a 3-tuple of level, status, and RGBA colour string), and \texttt{log\_alert()} (writes timestamped entries using a context manager). The Streamlit dashboard uses five-column layout for city cards, \texttt{st.metric()} for large-format rainfall display, and \texttt{st.pydeck\_chart()} for the interactive map with colour-coded scatter dots.
+
+\section{Testing \& Validation}
+The pytest suite contains 10 tests covering all boundary conditions: zero rainfall, values just below and at the 10 mm/h boundary, values just below and at the 20 mm/h boundary, extreme rainfall (100 mm/h), return-type validation, and file-log creation. All 10 tests pass. The validation script runs 13 automated physical checks—all 13 pass, confirming correct behaviour at exact thresholds, proper RGBA formatting, and accurate CMA classification.
+
+\section{Results}
+Running \texttt{pytest test\_weather\_monitor.py -v} produces 10/10 PASS. Running \texttt{python validate\_rainfall\_alert.py} produces \texttt{Validation Summary: 13/13 checks PASSED}. The Streamlit dashboard displays five city cards with live temperature, humidity, and rainfall data alongside the interactive pydeck map.
+
+\section{Conclusion}
+This experiment demonstrates that a functional real-time monitoring system can be prototyped in a single session using AI-assisted development. The critical engineering challenges—API error handling, floating-point boundary conditions, and RGBA colour formatting for pydeck—were resolved through iterative prompt refinement. The system is ready for deployment on any Streamlit-compatible server.
+
+\end{document}

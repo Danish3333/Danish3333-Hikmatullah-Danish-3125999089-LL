@@ -1,0 +1,33 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, graphicx, hyperref, listings, booktabs}
+\usepackage[margin=2.5cm]{geometry}
+\title{Assignment 3: The Swiss Cheese Test Suite}
+\author{Hikmatullah Danish \quad 3125999089}
+\date{July 2026}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+This assignment applies the Swiss Cheese model of accident causation to software testing. The principle: no single test layer catches all errors, but multiple overlapping layers collectively prevent defects from reaching production. A 4-layer test suite was designed for a flood inundation model, with each layer catching what the previous layer missed. The assignment also required identifying at least one AI hallucination—code that passes syntax checks but violates physical reality.
+
+\section{The 4-Layer Model}
+\textbf{Layer 1 — Unit Tests (6 tests):} Verifies basic execution: does the function return a dict? Are the required keys present? Is the mask boolean? Are shapes consistent? This layer catches crashes and type errors.
+
+\textbf{Layer 2 — Boundary Tests (5 tests):} Tests extreme values: water level below minimum elevation (0\% flood), above maximum elevation (100\% flood), exactly at boundaries, and with very small increments. This layer catches off-by-one errors and edge-case mishandling.
+
+\textbf{Layer 3 — Physical Tests (10 tests):} Validates scientific constraints: monotonic increase with water level, non-negative depths everywhere, max depth equals water-level minus minimum elevation, non-flooded areas have zero depth, and mask-depth array consistency. This layer catches physically impossible outputs.
+
+\textbf{Layer 4 — Regression Tests (3 tests):} Ensures reproducibility: same seed produces identical DEM, different seed produces different DEM, and deterministic flood calculation. This layer catches non-deterministic behaviour.
+
+\section{Hallucination Detection}
+The test suite was designed to catch four known AI weaknesses: (1) computing depth as $W - E_{ij}$ without checking whether it is negative, (2) using integer division for percentage calculation, (3) using $\leq$ instead of $<$ for the flood condition (changing behaviour at exact boundary), and (4) off-by-one errors in array indexing. The boundary layer's test at exact maximum elevation exposed the $<$ vs $\leq$ distinction: with strict inequality, cells exactly at water level are not flooded—a design choice that must be documented.
+
+\section{Results}
+All 24 tests pass across the four layers (6 + 5 + 10 + 3). No active hallucinations were detected in the current flood-inundation implementation—the code correctly uses \texttt{np.where()} for depth calculation, strict inequality for flood condition, and float64 for percentage computation. The test suite is self-contained and requires no imports from external experiment folders.
+
+\section{Conclusion}
+The Swiss Cheese model provided a systematic framework for covering blind spots that a flat test list would miss. Layer 3 (physical tests) proved most valuable, catching the qualitative difference between syntactic correctness and physical validity. This assignment demonstrates that multi-layer testing is essential for AI-generated scientific code, where each layer catches qualitatively different error classes.
+
+\end{document}

@@ -1,0 +1,20 @@
+============================================================
+VALIDATION REPORT -- Experiment 2: SCS-CN Runoff Calculation
+Date: 2026-07-07 02:34:09
+============================================================
+[PASS] V01: Zero rainfall -> zero runoff -- Q=0.0
+[PASS] V02: Runoff non-negative -- Q=13.80
+[PASS] V03: Q <= P -- Q=13.80 <= 50
+[PASS] V04: CN=90 > CN=70 runoff -- 27.11 > 5.81
+[PASS] V05: P=100 > P=50 runoff -- 50.54 > 13.80
+[PASS] V06: P below Ia -> Q=0 -- Q=0.00
+[PASS] V07: High CN(98)+P(100) -> Q>90 -- Q=94.04
+[PASS] V08: Low CN(50) -> Q<100 -- Q=55.21
+[PASS] V09: S(CN=80) ~ 63.5 -- S=63.5
+[PASS] V10: Ia(CN=80) ~ 12.7 -- Ia=12.7
+[PASS] V11: CN=0 raises ValueError
+[PASS] V12: P<0 raises ValueError
+[PASS] V13: Batch all >=0 -- values=[ 0.          1.99591029 13.80248016 30.85286169 50.53905836]
+------------------------------------------------------------
+Result: 13/13 PASSED
+Conclusion: All SCS-CN physical constraints verified.

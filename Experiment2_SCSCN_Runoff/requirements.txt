@@ -1,0 +1,6 @@
+# Experiment 2: SCS-CN Runoff Model — Dependencies
+# Install: pip install -r requirements.txt
+numpy==1.26.4
+matplotlib==3.9.0
+scipy==1.13.1
+pytest==8.2.2

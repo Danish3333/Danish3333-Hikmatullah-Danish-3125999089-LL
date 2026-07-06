@@ -1,0 +1,15 @@
+============================================================
+ALERT STATUS SUMMARY
+Generated: 2026-07-07 02:22:08
+============================================================
+
+City             Rainfall (mm/h)      Alert     Status                  Category
+--------------------------------------------------------------------------------
+Beijing                     0.00      Green     Normal Light rain / Moderate rain
+Shanghai                    0.00      Green     Normal Light rain / Moderate rain
+Guangzhou                   0.00      Green     Normal Light rain / Moderate rain
+Shenzhen                    0.00      Green     Normal Light rain / Moderate rain
+Wuhan                       0.00      Green     Normal Light rain / Moderate rain
+--------------------------------------------------------------------------------
+
+  No active Red alerts.

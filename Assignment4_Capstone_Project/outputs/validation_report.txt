@@ -1,0 +1,10 @@
+============================================================
+VALIDATION REPORT
+============================================================
+Release bounds: PASS
+Storage bounds: PASS
+Mass balance:   PASS
+Overall:        ALL PASS
+
+Total Revenue: $54,916.25
+Eco Deficit:   0.00 m3/s·day

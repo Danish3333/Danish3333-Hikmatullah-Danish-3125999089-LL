@@ -1,0 +1,42 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, graphicx, hyperref, listings, booktabs}
+\usepackage[margin=2.5cm]{geometry}
+\title{Experiment 2: Hydrological Modeling — SCS-CN Runoff Calculation}
+\author{Hikmatullah Danish \quad 3125999089}
+\date{July 2026}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+The Soil Conservation Service Curve Number (SCS-CN) method is the most widely used empirical approach for estimating direct runoff from rainfall in ungauged watersheds. This experiment implements the SCS-CN formula in Python, handles four critical physical boundary conditions, and performs sensitivity analysis across six land-cover types. The work demonstrates how AI-assisted development can accelerate formula-to-code translation while the human engineer remains responsible for physical validation.
+
+\section{Mathematical Formulation}
+The SCS-CN method computes runoff $Q$ from rainfall $P$ and a dimensionless Curve Number $CN$ as follows:
+\begin{align}
+S &= \frac{25400}{CN} - 254 \label{eq:S} \\
+I_a &= 0.2 \times S \label{eq:Ia} \\
+Q &= \begin{cases}
+0 & \text{if } P \leq I_a \\
+\displaystyle\frac{(P - I_a)^2}{P - I_a + S} & \text{if } P > I_a
+\end{cases} \label{eq:Q}
+\end{align}
+where $S$ is the potential maximum retention (mm) and $I_a$ is the initial abstraction (mm). The conservation constraint $Q \leq P$ is enforced via $\min(Q, P)$.
+
+\section{Physical Boundary Conditions}
+Four boundary conditions must be satisfied for physical correctness: (1) $P = 0 \implies Q = 0$, (2) $P \leq I_a \implies Q = 0$ (rainfall has not overcome initial abstraction), (3) $Q \leq P$ always (conservation of mass), and (4) $CN = 100$ represents an impervious surface where $S = 0$ and all rainfall becomes runoff.
+
+\section{Implementation}
+The core implementation contains \texttt{calculate\_runoff(P, CN)} with float type hints and ValueError handling for invalid inputs ($CN \leq 0$ or $CN > 100$, $P < 0$). A vectorized batch version \texttt{batch\_calculate\_runoff(P\_values, CN)} uses \texttt{np.where()} for efficient array computation. The sensitivity analysis generates two publication-quality plots: CN vs Q for fixed $P = 50$ mm across six CN values, and Rainfall vs Runoff comparison curves for five different CN values with a $Q = P$ reference line.
+
+\section{Testing \& Validation}
+The pytest suite contains 8 tests covering zero rainfall, below-abstraction, exact-abstraction, known reference ($P = 50$ mm, $CN = 80 \implies Q = 13.8$ mm), maximum CN, and invalid-input handling. All 8 tests pass. The validation script runs 13 automated checks: zero-runoff, non-negativity, $Q \leq P$, CN monotonicity, P monotonicity, below-Ia threshold, high-CN near-P, low-CN retention, S/Ia calculation accuracy, ValueError enforcement, and batch-output non-negativity. All 13 checks pass.
+
+\section{Results}
+At $P = 50$ mm, the computed runoff ranges from $1.4$ mm (CN = 60, forest) to $50.0$ mm (CN = 100, impervious). The non-linear acceleration of runoff at high CN values is clearly visible in the sensitivity curve. The vectorized batch function achieves approximately 50$\times$ speedup over scalar iteration for 10,000 rainfall values.
+
+\section{Conclusion}
+The SCS-CN experiment revealed that AI-assisted code generation excels at algebraic translation but systematically misses physical boundary conditions unless explicitly enumerated in the prompt. The constraint-first prompting strategy—listing all boundary conditions before requesting implementation—produced production-ready code on the first iteration. This experiment confirms that domain-specific test cases must be specified by the human engineer; the AI will not invent them.
+
+\end{document}
