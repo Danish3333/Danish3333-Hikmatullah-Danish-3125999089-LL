@@ -1,0 +1,35 @@
+name: Run All Tests
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install all dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Experiment 1 tests (Rainfall Alert)
+        run: pytest Experiment1_Rainfall_Alert/ -v
+
+      - name: Run Experiment 2 tests (SCS-CN Runoff)
+        run: pytest Experiment2_SCSCN_Runoff/ -v
+
+      - name: Run Experiment 3 tests (Reservoir Optimization)
+        run: pytest Experiment3_Reservoir_Optimization/ -v
+
+      - name: Run Experiment 4 tests (Flood Inundation)
+        run: pytest Experiment4_Flood_Inundation/ -v
